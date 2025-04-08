@@ -18,4 +18,17 @@ GET http://localhost:19093/api/v1/users/me
 Content-Type: application/json
 X-User-Name: tester
 X-User-Role: CUSTOMER
-X-User-ID: 1
+X-User-ID: 3
+
+### 유저 정보 수정
+PUT http://localhost:19093/api/v1/users/me
+Content-Type: application/json
+X-User-Name: tester
+X-User-Role: CUSTOMER
+X-User-ID: 3
+
+{
+  "nickname": "테스터",
+  "email": "test@test.com",
+  "contact": "010-1111-2212"
+}

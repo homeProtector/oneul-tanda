@@ -1,5 +1,6 @@
 package com.oneultanda.userservice.domain.entity;
 
+import com.oneultanda.userservice.application.dto.comand.UpdateUserCommand;
 import com.oneultanda.userservice.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -58,5 +59,11 @@ public class User extends BaseTimeEntity {
         user.registerCreatedBy(username);
 
         return user;
+    }
+
+    public void updateFromUpdateUserCommand(UpdateUserCommand command) {
+        this.nickname = command.nickname();
+        this.email = command.email();
+        this.contact = command.contact();
     }
 }

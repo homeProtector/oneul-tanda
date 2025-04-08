@@ -10,6 +10,6 @@ public record RegisterUserRequest(
         String contact
 ) {
     public RegisterUserCommand toCommand() {
-        return new RegisterUserCommand(this.username, password, nickname, email, contact);
+        return new RegisterUserCommand(username, password, nickname, email, contact);
     }
 }
