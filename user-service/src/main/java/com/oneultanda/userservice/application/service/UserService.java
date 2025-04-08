@@ -5,6 +5,7 @@ import com.oneultanda.userservice.common.exception.CustomException;
 import com.oneultanda.userservice.domain.entity.Role;
 import com.oneultanda.userservice.domain.entity.User;
 import com.oneultanda.userservice.domain.repository.UserRepository;
+import com.oneultanda.userservice.presentaion.dto.response.UserAuthResponse;
 import com.oneultanda.userservice.presentaion.dto.response.UserResponse;
 import com.oneultanda.userservice.presentaion.exception.PresentaionErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -81,9 +82,9 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Long getUserIdFromUsername(String username) {
+    public UserAuthResponse getUserIdFromUsername(String username) {
         User user = checkUserFromUsername(username);
-        return user.getId();
+        return UserAuthResponse.fromUser(user);
     }
 
     /**

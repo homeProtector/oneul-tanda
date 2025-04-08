@@ -1,6 +1,7 @@
 package com.oneultanda.userservice.presentaion.controller;
 
 import com.oneultanda.userservice.application.service.UserService;
+import com.oneultanda.userservice.presentaion.dto.response.UserAuthResponse;
 import com.oneultanda.userservice.presentaion.dto.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +25,11 @@ public class UserInternalController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{username}/user-id")
-    public ResponseEntity<Long> getUserFromUsername(
+    @GetMapping("/auth/{username}")
+    public ResponseEntity<UserAuthResponse> getUserFromUsername(
             @PathVariable final String username
     ) {
-        Long userId = userservice.getUserIdFromUsername(username);
-        return ResponseEntity.ok(userId);
+        UserAuthResponse response = userservice.getUserIdFromUsername(username);
+        return ResponseEntity.ok(response);
     }
 }

@@ -76,5 +76,5 @@ GET http://localhost:19093/api/v1/internal/users/3
 Content-Type: application/json
 
 ### 유저 id 조회 username기반
-GET http://localhost:19093/api/v1/internal/users/tester/user-id
+GET http://localhost:19093/api/v1/internal/users/auth/tester
 Content-Type: application/json
