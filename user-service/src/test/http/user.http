@@ -1,9 +1,6 @@
 ### 유저 생성
 POST http://localhost:19093/api/v1/users/signup
 Content-Type: application/json
-#X-User-Name: tester
-#X-User-Role: CUSTOMER
-#X-User-ID: 3
 
 {
   "username": "tester",
@@ -43,4 +40,15 @@ X-User-ID: 3
 {
   "currentPassword": "12345678a*",
   "newPassword": "12345678a"
+}
+
+### 유저 탈퇴 todo: 추후 feignclient grpc를 통해 수정 작업 진행
+DELETE http://localhost:19093/api/v1/users/me
+Content-Type: application/json
+X-User-Name: tester
+X-User-Role: CUSTOMER
+X-User-ID: 3
+
+{
+  "password": "12345678a"
 }

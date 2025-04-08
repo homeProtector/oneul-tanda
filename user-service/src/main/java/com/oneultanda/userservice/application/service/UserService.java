@@ -1,5 +1,6 @@
 package com.oneultanda.userservice.application.service;
 
+import com.oneultanda.userservice.application.dto.comand.DeleteUserCommand;
 import com.oneultanda.userservice.application.dto.comand.RegisterUserCommand;
 import com.oneultanda.userservice.application.dto.comand.UpdatePasswordCommand;
 import com.oneultanda.userservice.application.dto.comand.UpdateUserCommand;
@@ -51,17 +52,29 @@ public class UserService {
     @Transactional
     public void updatePassword(Long userId, UpdatePasswordCommand command) {
         User user = checkUser(userId);
-        if (!user.getPassword().equals(command.currentPassword())) {
-            throw new CustomException(PresentaionErrorCode.INVALID_REQUEST);
-        }
+        checkPassword(user, command.currentPassword());
         user.updateFromUpdatePasswordCommand(command);
     }
 
+    @Transactional
+    public void deleteUser(Long userId, DeleteUserCommand command) {
+        User user = checkUser(userId);
+        checkPassword(user, command.password());
+        user.markDeleted(user.getUsername());
+    }
+
+    /**
+     * todo: gateway에서 검증된 값이므로 굳이 한번더 check 할 필요가 없나?
+     */
     private User checkUser(final Long userId) {
-        return userRespository.findById(userId)
+        return userRespository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() ->
                 new CustomException(PresentaionErrorCode.RESOURCE_NOT_FOUND));
     }
 
-
+    private void checkPassword(final User user, final String password) {
+        if (!user.getPassword().equals(password)) {
+            throw new CustomException(PresentaionErrorCode.INVALID_REQUEST);
+        }
+    }
 }

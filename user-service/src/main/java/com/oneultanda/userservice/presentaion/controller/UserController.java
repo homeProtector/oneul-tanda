@@ -1,6 +1,7 @@
 package com.oneultanda.userservice.presentaion.controller;
 
 import com.oneultanda.userservice.application.service.UserService;
+import com.oneultanda.userservice.presentaion.dto.request.DeleteUserRequest;
 import com.oneultanda.userservice.presentaion.dto.request.RegisterUserRequest;
 import com.oneultanda.userservice.presentaion.dto.request.UpdatePasswordRequest;
 import com.oneultanda.userservice.presentaion.dto.request.UpdateUserRequest;
@@ -63,6 +64,15 @@ public class UserController {
         userservice.updatePassword(userId, request.toCommand());
         return ResponseEntity.ok().build();
     }
-//
-//    @DeleteMapping
+    /**
+     * todo: 비밀번호 변경과 동일한 과정 필요
+     */
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteUser(
+            @RequestHeader("X-User-ID") Long userId,
+            @RequestBody DeleteUserRequest request
+    ) {
+        userservice.deleteUser(userId, request.toCommand());
+        return ResponseEntity.ok().build();
+    }
 }
