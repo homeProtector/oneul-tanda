@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Set;
 
 @Slf4j
@@ -82,17 +83,17 @@ public class QueueService {
             if(seatCount <= remainingSeats) { // 대기열 선점 성공시 항공편의 좌석 수 차감 후 성공 메세지 전달
                 // 좌석 수 차감 api 필요
                 remainingSeats -= seatCount;
-                deleteExistReserve(flightId, userId);
                 log.info("대기열 선점에 성공 했습니다. 남은 좌석 수: {}", remainingSeats);
-
 //                producerService.sendReserveSuccess(flightId, userId, seatCount);
+//                deleteExistReserve(flightId, userId);
 //                rankOps.remove(key, reserveInfo);
             } else { // 대기열 선점 실패서 실패 메세지 전달
-                deleteExistReserve(flightId, userId);
                 log.info("대기열 선점에 실패했습니다. 남은 좌석 수: {}", remainingSeats);
 //                producerService.sendReserveFailed(flightId, userId, seatCount);
+//                deleteExistReserve(flightId, userId);
 //                rankOps.remove(key, reserveInfo);
             }
+            break;
         }
     }
 
@@ -106,10 +107,10 @@ public class QueueService {
     private void setExistReserve(String flightId, String userId) {
         String key = "reserve:" +  flightId + ":" + userId;
         log.info("key: {}", key);
-        redisTemplate.opsForValue().set(key, "1");
+        redisTemplate.opsForValue().set(key, "1", Duration.ofMinutes(5));
     }
 
-    // 대기열 선점 성공이나 실패시 sortedSet 과 같이 삭제
+    // 대기열 선점 실패시 sortedSet 과 같이 삭제
     public void deleteExistReserve(String flightId, String userId) {
         String key = "reserve:" +  flightId + ":" + userId;
         redisTemplate.delete(key);
