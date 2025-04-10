@@ -17,6 +17,14 @@ public class AirportService {
 
     private final AirportRepository airportRepository;
 
+    public AirportResponse getAirport(UUID airportId) {
+
+        Airport airport = airportRepository.findById(airportId)
+                .orElseThrow(() -> new IllegalArgumentException("Airport not found"));
+
+        return AirportResponse.of(airport);
+    }
+
     @Transactional
     public AirportResponse createAirport(AirportCommand airportCommand) {
 
