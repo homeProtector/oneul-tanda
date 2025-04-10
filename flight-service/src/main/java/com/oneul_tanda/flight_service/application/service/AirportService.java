@@ -1,11 +1,11 @@
 package com.oneul_tanda.flight_service.application.service;
 
 import com.oneul_tanda.flight_service.application.dtos.AirportCommand;
+import com.oneul_tanda.flight_service.application.dtos.AirportResponse;
 import com.oneul_tanda.flight_service.application.dtos.UpdateAirportCommand;
-import com.oneul_tanda.flight_service.presentation.dtos.UpdateAirportRequest;
 import com.oneul_tanda.flight_service.domain.entity.Airport;
 import com.oneul_tanda.flight_service.domain.repository.AirportRepository;
-import com.oneul_tanda.flight_service.application.dtos.AirportResponse;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,8 +49,19 @@ public class AirportService {
                 airportCommand.getCountry()
         );
 
+//        airport.updateModificationInfo(username);
         airportRepository.save(airport);
 
         return AirportResponse.of(airport);
+    }
+
+    @Transactional
+    public void deleteAirport(UUID airportId) {
+
+        Airport airport = airportRepository.findById(airportId)
+                .orElseThrow(() -> new IllegalArgumentException("Airport not found"));
+
+//        airport.updateDeletionInfo(username);
+        airportRepository.save(airport);
     }
 }
