@@ -46,4 +46,11 @@ public class Airport extends BaseTimeEntity {
                 .country(country)
                 .build();
     }
+
+    public void updateOf(String code, String name, String city, String country) {
+        this.code = code;
+        this.name = name;
+        this.city = city;
+        this.country = country;
+    }
 }
