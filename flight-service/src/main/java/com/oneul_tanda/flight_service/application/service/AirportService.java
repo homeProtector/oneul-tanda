@@ -5,8 +5,12 @@ import com.oneul_tanda.flight_service.application.dtos.AirportResponse;
 import com.oneul_tanda.flight_service.application.dtos.UpdateAirportCommand;
 import com.oneul_tanda.flight_service.domain.entity.Airport;
 import com.oneul_tanda.flight_service.domain.repository.AirportRepository;
+import com.oneul_tanda.flight_service.domain.repository.AirportRepositoryCustom;
+import com.oneul_tanda.flight_service.util.PagingUtil;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,13 +20,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class AirportService {
 
     private final AirportRepository airportRepository;
+    private final AirportRepositoryCustom airportRepositoryCustom;
 
     public AirportResponse getAirport(UUID airportId) {
 
         Airport airport = airportRepository.findById(airportId)
                 .orElseThrow(() -> new IllegalArgumentException("Airport not found"));
 
-        return AirportResponse.of(airport);
+        return AirportResponse.from(airport);
+    }
+
+    public Page<AirportResponse> searchAirports(String keyword, Pageable pageable) {
+        Pageable adjusted = PagingUtil.adjustPageable(pageable);
+        Page<Airport> airports = airportRepositoryCustom.searchByKeyword(keyword, adjusted);
+
+        return airports.map(AirportResponse::from);
     }
 
     @Transactional
@@ -41,7 +53,7 @@ public class AirportService {
 
         airportRepository.save(airport);
 
-        return AirportResponse.of(airport);
+        return AirportResponse.from(airport);
     }
 
     @Transactional
@@ -60,7 +72,7 @@ public class AirportService {
 //        airport.updateModificationInfo(username);
         airportRepository.save(airport);
 
-        return AirportResponse.of(airport);
+        return AirportResponse.from(airport);
     }
 
     @Transactional
