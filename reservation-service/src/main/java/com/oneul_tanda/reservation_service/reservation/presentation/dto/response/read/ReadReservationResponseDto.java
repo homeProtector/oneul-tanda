@@ -1,7 +1,8 @@
-package com.oneul_tanda.reservation_service.reservation.presentation.dto.response;
+package com.oneul_tanda.reservation_service.reservation.presentation.dto.response.read;
 
 import com.oneul_tanda.reservation_service.reservation.domain.entity.Reservation;
 import com.oneul_tanda.reservation_service.reservation.domain.entity.ReservationStatus;
+import com.oneul_tanda.reservation_service.reservation.presentation.dto.response.create.CreateTicketResponseDto;
 import lombok.Builder;
 
 import java.math.BigDecimal;
@@ -10,17 +11,17 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Builder
-public record CreateReservationResponseDto(
+public record ReadReservationResponseDto(
         UUID reservationId,
         Long userId,
         BigDecimal totalPrice,
         ReservationStatus status,
-         List<CreateTicketResponseDto> tickets
+        List<CreateTicketResponseDto> tickets
 ) {
 
     // Entity -> DTO 변환 메서드
-    public static CreateReservationResponseDto from(Reservation reservation) {
-        return CreateReservationResponseDto.builder()
+    public static ReadReservationResponseDto from(Reservation reservation) {
+        return ReadReservationResponseDto.builder()
                 .reservationId(reservation.getId())
                 .userId(reservation.getUserId())
                 .totalPrice(reservation.getTotalPrice())
