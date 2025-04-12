@@ -32,7 +32,7 @@ public class AmadeusController {
     }
 
     // 실시간 조회 및 DB 저장용 Amadeus API
-    @PostMapping("/search")
+    @PostMapping("/live-search")
     public ResponseEntity<List<AirportResponse>> searchAndSave(@RequestParam String keyword) {
         try {
             return ResponseEntity.ok(amadeusService.searchAndSave(keyword));
