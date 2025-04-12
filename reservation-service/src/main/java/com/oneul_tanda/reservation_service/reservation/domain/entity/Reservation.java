@@ -37,11 +37,11 @@ public class Reservation {
     private List<Ticket> ticketList;
 
 
-
     /**
-     * 예약 생성
+     * 예약 임시 생성
      */
-    public static Reservation createReservation(Long userId, List<Ticket> ticketList) {
+    public static Reservation createHoldReservation(Long userId, List<Ticket> ticketList) {
+
         Reservation reservation = Reservation.builder()
                 .userId(userId)
                 .ticketList(new ArrayList<>())
