@@ -1,8 +1,8 @@
 package com.oneul_tanda.flight_service.presentation.controller;
 
 import com.amadeus.resources.Location;
-import com.oneul_tanda.flight_service.presentation.dtos.AirportResponse;
-import com.oneul_tanda.flight_service.presentation.dtos.AirportSearchResponse;
+import com.oneul_tanda.flight_service.presentation.dtos.airport.AirportResponse;
+import com.oneul_tanda.flight_service.presentation.dtos.airport.AirportSearchResponse;
 import com.oneul_tanda.flight_service.application.service.AirportExternalService;
 import java.util.Arrays;
 import java.util.List;

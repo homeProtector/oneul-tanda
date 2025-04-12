@@ -1,6 +1,6 @@
 package com.oneul_tanda.flight_service.application.service;
 
-import com.oneul_tanda.flight_service.domain.repository.AirlineRepository;
+import com.oneul_tanda.flight_service.domain.repository.airline.AirlineRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
