@@ -29,6 +29,9 @@ repositories {
 }
 
 dependencies {
+	// Amadeus
+	implementation 'com.amadeus:amadeus-java:5.0.0'
+
 	// QueryDSL
 	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta"
 	annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}:jakarta"
