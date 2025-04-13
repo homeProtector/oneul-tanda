@@ -6,8 +6,9 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-public interface AirlineRepository{
+public interface AirlineRepository {
 
     AirlineEntity save(AirlineEntity airline);
 
@@ -17,6 +18,11 @@ public interface AirlineRepository{
     @Query("SELECT al FROM AirlineEntity al WHERE al.id = :airlineId AND al.deletedAt IS NULL")
     Optional<AirlineEntity> findById(UUID airlineId);
 
-    @Query("SELECT al FROM AirlineEntity al WHERE al.code = :code AND al.name = :name AND al.deletedAt IS NULL")
-    Page<AirlineEntity> findByCodeAndName(String code, String name, Pageable adjusted);
+    @Query("""
+                SELECT al FROM AirlineEntity al
+                WHERE (:code IS NULL OR al.code = :code)
+                  AND (:name IS NULL OR al.name = :name)
+                  AND al.deletedAt IS NULL
+            """)
+    Page<AirlineEntity> findByCodeAndName(@Param("code") String code, @Param("name") String name, Pageable adjusted);
 }
