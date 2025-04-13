@@ -2,7 +2,7 @@ package com.oneul_tanda.flight_service.application.service;
 
 import com.oneul_tanda.flight_service.application.dtos.airline.CreateAirlineCommand;
 import com.oneul_tanda.flight_service.application.dtos.airline.UpdateAirlineCommand;
-import com.oneul_tanda.flight_service.domain.entity.Airline;
+import com.oneul_tanda.flight_service.domain.entity.AirlineEntity;
 import com.oneul_tanda.flight_service.domain.repository.airline.AirlineRepository;
 import com.oneul_tanda.flight_service.presentation.dtos.airline.AirlineResponse;
 import com.oneul_tanda.flight_service.util.PagingUtil;
@@ -21,7 +21,7 @@ public class AirlineService {
     private final AirlineRepository airlineRepository;
 
     public AirlineResponse getAirline(UUID airlineId) {
-        Airline airline = airlineRepository.findById(airlineId)
+        AirlineEntity airline = airlineRepository.findById(airlineId)
                 .orElseThrow(() -> new IllegalArgumentException("Airline not found"));
 
         return AirlineResponse.from(airline);
@@ -29,7 +29,7 @@ public class AirlineService {
 
     public Page<AirlineResponse> searchAirlines(String code, String name, Pageable pageable) {
         Pageable adjusted = PagingUtil.adjustPageable(pageable);
-        Page<Airline> airlines = airlineRepository.findByCodeAndName(code, name, adjusted);
+        Page<AirlineEntity> airlines = airlineRepository.findByCodeAndName(code, name, adjusted);
 
         return airlines.map(AirlineResponse::from);
     }
@@ -41,7 +41,7 @@ public class AirlineService {
             throw new IllegalArgumentException("Airline code " + airlineCommand.getCode() + " already exists");
         }
 
-        Airline airline = Airline.from(
+        AirlineEntity airline = AirlineEntity.from(
                 airlineCommand.getCode(),
                 airlineCommand.getName()
         );
@@ -54,7 +54,7 @@ public class AirlineService {
     @Transactional
     public AirlineResponse updateAirline(UpdateAirlineCommand airlineCommand) {
 
-        Airline airline = airlineRepository.findById(airlineCommand.getAirlineId())
+        AirlineEntity airline = airlineRepository.findById(airlineCommand.getAirlineId())
                 .orElseThrow(() -> new IllegalArgumentException("Airline not found"));
 
         airline.updateOf(
@@ -70,7 +70,7 @@ public class AirlineService {
     @Transactional
     public void deleteAirline(UUID airlineId) {
 
-        Airline airline = airlineRepository.findById(airlineId)
+        AirlineEntity airline = airlineRepository.findById(airlineId)
                 .orElseThrow(() -> new IllegalArgumentException("Airline not found"));
 
         airline.updateDeletionInfo("삭제자");
