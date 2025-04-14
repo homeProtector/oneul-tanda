@@ -32,7 +32,7 @@ public class FlightEntity extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "flight_num", nullable = false, unique = true)
+    @Column(name = "flight_num", nullable = false)
     private String flightNum;
 
     @ManyToOne(fetch = FetchType.LAZY)

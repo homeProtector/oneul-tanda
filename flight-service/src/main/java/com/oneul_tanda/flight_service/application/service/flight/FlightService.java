@@ -10,6 +10,7 @@ import com.oneul_tanda.flight_service.domain.repository.airport.AirportRepositor
 import com.oneul_tanda.flight_service.domain.repository.flight.FlightRepository;
 import com.oneul_tanda.flight_service.presentation.dtos.flight.FlightResponse;
 import java.time.Duration;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,8 @@ public class FlightService {
     @Transactional
     public FlightResponse createFlight(CreateFlightCommand flightCommand) {
 
-        if (flightRepository.findByFlightNumAndDepartureDate(flightCommand.getFlightNum(), flightCommand.getDepartureDate())
+        if (flightRepository.findByFlightNumAndDepartureDate(flightCommand.getFlightNum(),
+                        flightCommand.getDepartureDate())
                 .isPresent()) {
             throw new IllegalArgumentException("Flight with this flight number and departure date already exists");
         }
@@ -82,10 +84,19 @@ public class FlightService {
                 duration,
                 flightCommand.getPrice(),
                 flightCommand.getRemainingSeats()
-                );
+        );
 
         flight.updateModificationInfo("수정자");
 
         return FlightResponse.from(flight);
+    }
+
+    @Transactional
+    public void deleteFlight(UUID flightId) {
+
+        FlightEntity flight = flightRepository.findById(flightId)
+                .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
+
+        flight.updateDeletionInfo("삭제자");
     }
 }
