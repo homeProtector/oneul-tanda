@@ -96,4 +96,12 @@ public class FlightEntity extends BaseTimeEntity {
         this.price = price;
         this.remainingSeats = remainingSeats;
     }
+
+    public void decreaseSeatCount(int requiredSeats) {
+        this.remainingSeats -= requiredSeats;
+    }
+
+    public void increaseSeatCount(int requiredSeats) {
+        this.remainingSeats += requiredSeats;
+    }
 }

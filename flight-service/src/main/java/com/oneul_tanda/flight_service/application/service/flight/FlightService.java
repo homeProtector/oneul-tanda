@@ -8,11 +8,16 @@ import com.oneul_tanda.flight_service.domain.entity.FlightEntity;
 import com.oneul_tanda.flight_service.domain.repository.airline.AirlineRepository;
 import com.oneul_tanda.flight_service.domain.repository.airport.AirportRepository;
 import com.oneul_tanda.flight_service.domain.repository.flight.FlightRepository;
+import com.oneul_tanda.flight_service.domain.repository.flight.FlightRepositoryCustom;
 import com.oneul_tanda.flight_service.presentation.dtos.flight.FlightDetailResponse;
 import com.oneul_tanda.flight_service.presentation.dtos.flight.FlightResponse;
+import com.oneul_tanda.flight_service.util.PagingUtil;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class FlightService {
 
     private final FlightRepository flightRepository;
+    private final FlightRepositoryCustom flightRepositoryCustom;
     private final AirlineRepository airlineRepository;
     private final AirportRepository airportRepository;
 
@@ -31,6 +37,20 @@ public class FlightService {
                 .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
 
         return FlightDetailResponse.from(flight);
+    }
+
+
+    public Page<FlightResponse> searchFlights(String departureAirport, String arrivalAirport,
+                                              LocalDateTime departureDate, Integer requiredSeats,
+                                              Pageable pageable
+    ) {
+        Pageable adjusted = PagingUtil.adjustPageable(pageable);
+        Page<FlightEntity> flights = flightRepositoryCustom.searchFlights(
+                departureAirport, arrivalAirport,
+                departureDate, requiredSeats, adjusted
+        );
+
+        return flights.map(FlightResponse::from);
     }
 
     @Transactional
@@ -111,4 +131,19 @@ public class FlightService {
         flight.updateDeletionInfo("삭제자");
     }
 
+    @Transactional
+    public void decreaseSeats(UUID flightId, Integer requiredSeats) {
+        FlightEntity flight = flightRepository.findById(flightId)
+                .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
+
+        flight.decreaseSeatCount(requiredSeats);
+    }
+
+    @Transactional
+    public void increaseSeats(UUID flightId, Integer requiredSeats) {
+        FlightEntity flight = flightRepository.findById(flightId)
+                .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
+
+        flight.increaseSeatCount(requiredSeats);
+    }
 }
