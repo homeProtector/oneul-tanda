@@ -1,5 +1,6 @@
 package com.oneul_tanda.flight_service.domain.entity;
 
+import com.oneul_tanda.flight_service.common.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -24,7 +26,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(access = AccessLevel.PRIVATE)
-public class Flight {
+public class FlightEntity extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -35,15 +37,15 @@ public class Flight {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "airline_id", nullable = false)
-    private AirLine airline;
+    private AirlineEntity airline;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "departure_airport_id", nullable = false)
-    private Airport departureAirportCode;
+    private Airport departureAirport;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "arrival_airport_id", nullable = false)
-    private Airport arrivalAirportCode;
+    private Airport arrivalAirport;
 
     @Column(name = "departure_date", nullable = false)
     private LocalDateTime departureDate;
@@ -51,39 +53,46 @@ public class Flight {
     @Column(name = "arrival_date", nullable = false)
     private LocalDateTime arrivalDate;
 
+    @Column(name = "duration", nullable = false)
+    private Duration duration;
+
     @Column(name = "price", nullable = false)
     private BigDecimal price;
 
     @Column(name = "remaining_seats", nullable = false)
     private int remainingSeats;
 
-    public static Flight from(String flightNum, AirLine airline, Airport departureAirportCode,
-                              Airport arrivalAirportCode,
-                              LocalDateTime departureDate, LocalDateTime arrivalDate, BigDecimal price,
-                              int remainingSeats
+    public static FlightEntity from(String flightNum, AirlineEntity airlineCode, Airport departureAirport,
+                                    Airport arrivalAirport,
+                                    LocalDateTime departureDate, LocalDateTime arrivalDate,
+                                    Duration duration, BigDecimal price,
+                                    int remainingSeats
     ) {
-        return Flight.builder()
+        return FlightEntity.builder()
                 .flightNum(flightNum)
-                .airline(airline)
-                .departureAirportCode(departureAirportCode)
-                .arrivalAirportCode(arrivalAirportCode)
+                .airline(airlineCode)
+                .departureAirport(departureAirport)
+                .arrivalAirport(arrivalAirport)
                 .departureDate(departureDate)
                 .arrivalDate(arrivalDate)
+                .duration(duration)
                 .price(price)
                 .remainingSeats(remainingSeats)
                 .build();
-
     }
 
-    public void updateOf(String flightNum, AirLine airline, Airport departureAirportCode, Airport arrivalAirportCode,
-                         LocalDateTime departureDate, LocalDateTime arrivalDate, BigDecimal price, int remainingSeats
+    public void updateOf(String flightNum, AirlineEntity airlineCode, Airport departureAirport,
+                         Airport arrivalAirport,
+                         LocalDateTime departureDate, LocalDateTime arrivalDate,
+                         Duration duration, BigDecimal price, int remainingSeats
     ) {
         this.flightNum = flightNum;
-        this.airline = airline;
-        this.departureAirportCode = departureAirportCode;
-        this.arrivalAirportCode = arrivalAirportCode;
+        this.airline = airlineCode;
+        this.departureAirport = departureAirport;
+        this.arrivalAirport = arrivalAirport;
         this.departureDate = departureDate;
         this.arrivalDate = arrivalDate;
+        this.duration = duration;
         this.price = price;
         this.remainingSeats = remainingSeats;
     }
