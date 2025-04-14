@@ -5,7 +5,7 @@ import com.oneul_tanda.reservation_service.reservation.application.command.Confi
 import com.oneul_tanda.reservation_service.reservation.application.command.CreateHoldReservationCommand;
 import com.oneul_tanda.reservation_service.reservation.domain.entity.Reservation;
 import com.oneul_tanda.reservation_service.reservation.domain.repository.ReservationRepository;
-import com.oneul_tanda.reservation_service.reservation.presentation.dto.request.CreateReservationRequestDto;
+import com.oneul_tanda.reservation_service.reservation.presentation.dto.request.create.CreateReservationRequestDto;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.response.create.CreateHoldReservationResponseDto;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.response.create.CreateReservationResponseDto;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.response.read.ReadReservationResponseDto;
@@ -42,6 +42,7 @@ public class ReservationServiceImpl implements ReservationService {
         for (CreateReservationRequestDto.CreateTicketRequestDto ticketDto : requestDto.tickets()) {
             // 탑승객 생성
             Passenger passenger = Passenger.createPassenger(
+                            ticketDto.passenger().name(),
                             ticketDto.passenger().birth(),
                             ticketDto.passenger().gender(),
                             ticketDto.passenger().passportNumber()
@@ -152,6 +153,7 @@ public class ReservationServiceImpl implements ReservationService {
 
             // 2-2. 탑승객 생성 및 티켓에 확정 처리
             Passenger passenger = Passenger.createPassenger(
+                    ticketCommand.passenger().name(),
                     ticketCommand.passenger().birth(),
                     ticketCommand.passenger().gender(),
                     ticketCommand.passenger().passportNumber()
