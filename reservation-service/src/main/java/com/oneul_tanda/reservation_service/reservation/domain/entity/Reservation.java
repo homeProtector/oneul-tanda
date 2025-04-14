@@ -77,6 +77,8 @@ public class Reservation extends BaseTimeEntity {
             reservation.addTicket(ticket);
         }
 
+        reservation.registerCreatedBy(userId);
+
         return reservation;
     }
 

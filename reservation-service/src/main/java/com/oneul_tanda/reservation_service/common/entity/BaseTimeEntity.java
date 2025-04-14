@@ -45,4 +45,9 @@ public abstract class BaseTimeEntity {
         this.deletedAt = LocalDateTime.now();
         this.deletedBy = deletedBy;
     }
+
+    public void registerCreatedBy(UUID userId) {
+        this.createdBy = userId;
+        this.updatedBy = userId;
+    }
 }
