@@ -1,5 +1,6 @@
 package com.oneul_tanda.reservation_service.ticket.domain.entity;
 
+import com.oneul_tanda.reservation_service.common.entity.BaseTimeEntity;
 import com.oneul_tanda.reservation_service.passenger.domain.entity.Passenger;
 import com.oneul_tanda.reservation_service.reservation.domain.entity.Reservation;
 import jakarta.persistence.*;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
-public class Ticket {
+public class Ticket extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
