@@ -8,6 +8,7 @@ import com.oneul_tanda.flight_service.domain.entity.FlightEntity;
 import com.oneul_tanda.flight_service.domain.repository.airline.AirlineRepository;
 import com.oneul_tanda.flight_service.domain.repository.airport.AirportRepository;
 import com.oneul_tanda.flight_service.domain.repository.flight.FlightRepository;
+import com.oneul_tanda.flight_service.presentation.dtos.flight.FlightDetailResponse;
 import com.oneul_tanda.flight_service.presentation.dtos.flight.FlightResponse;
 import java.time.Duration;
 import java.util.UUID;
@@ -23,6 +24,14 @@ public class FlightService {
     private final FlightRepository flightRepository;
     private final AirlineRepository airlineRepository;
     private final AirportRepository airportRepository;
+
+    public FlightDetailResponse getFlight(UUID flightId) {
+
+        FlightEntity flight = flightRepository.findById(flightId)
+                .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
+
+        return FlightDetailResponse.from(flight);
+    }
 
     @Transactional
     public FlightResponse createFlight(CreateFlightCommand flightCommand) {
@@ -42,6 +51,7 @@ public class FlightService {
                 .orElseThrow(() -> new IllegalArgumentException("Arrival Airport not found"));
 
         Duration duration = Duration.between(flightCommand.getDepartureDate(), flightCommand.getArrivalDate());
+
         FlightEntity flight = FlightEntity.from(
                 flightCommand.getFlightNum(),
                 airline,
@@ -74,6 +84,7 @@ public class FlightService {
                 .orElseThrow(() -> new IllegalArgumentException("Arrival Airport not found"));
 
         Duration duration = Duration.between(flightCommand.getDepartureDate(), flightCommand.getArrivalDate());
+
         flight.updateOf(
                 flightCommand.getFlightNum(),
                 airline,
@@ -99,4 +110,5 @@ public class FlightService {
 
         flight.updateDeletionInfo("삭제자");
     }
+
 }

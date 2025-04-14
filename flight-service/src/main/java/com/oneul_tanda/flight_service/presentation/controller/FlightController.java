@@ -2,6 +2,7 @@ package com.oneul_tanda.flight_service.presentation.controller;
 
 import com.oneul_tanda.flight_service.application.service.flight.FlightService;
 import com.oneul_tanda.flight_service.presentation.dtos.flight.CreateFlightRequest;
+import com.oneul_tanda.flight_service.presentation.dtos.flight.FlightDetailResponse;
 import com.oneul_tanda.flight_service.presentation.dtos.flight.FlightResponse;
 import com.oneul_tanda.flight_service.presentation.dtos.flight.UpdateFlightRequest;
 import jakarta.validation.Valid;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -23,6 +25,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class FlightController {
 
     private final FlightService flightService;
+
+    @GetMapping("/{flightId}")
+    public ResponseEntity<FlightDetailResponse> getFlight(
+            @PathVariable UUID flightId
+    ) {
+        FlightDetailResponse response = flightService.getFlight(flightId);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 
     @PostMapping
     public ResponseEntity<FlightResponse> createFlight(
