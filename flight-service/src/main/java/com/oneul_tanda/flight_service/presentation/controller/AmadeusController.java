@@ -1,8 +1,8 @@
 package com.oneul_tanda.flight_service.presentation.controller;
 
 import com.amadeus.resources.Location;
-import com.oneul_tanda.flight_service.application.service.AirlineExternalService;
-import com.oneul_tanda.flight_service.application.service.AirportExternalService;
+import com.oneul_tanda.flight_service.application.service.airline.AirlineExternalService;
+import com.oneul_tanda.flight_service.application.service.airport.AirportExternalService;
 import com.oneul_tanda.flight_service.application.service.flight.FlightExternalService;
 import com.oneul_tanda.flight_service.presentation.dtos.airline.AirlineResponse;
 import com.oneul_tanda.flight_service.presentation.dtos.airline.AirlineSearchResponse;
