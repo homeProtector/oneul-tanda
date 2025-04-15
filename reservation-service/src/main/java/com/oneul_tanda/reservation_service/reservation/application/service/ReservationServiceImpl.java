@@ -52,6 +52,7 @@ public class ReservationServiceImpl implements ReservationService {
             Ticket ticket = Ticket.createTicket(
                     passenger,
                     ticketDto.flightId(),
+                    requestDto.userId(),
                     ticketDto.seatClass(),
                     ticketDto.price()
             );
@@ -85,6 +86,7 @@ public class ReservationServiceImpl implements ReservationService {
         for (int i = 0; i < command.seatCount(); i++) {
             Ticket ticket = Ticket.createTicketWithoutPassenger(
                     command.flightId(),
+                    command.userId(),
                     // TODO 임시 값 설정, 항공편 조회에서 데이터 획득 고려
                     SeatClass.ECONOMY,
                     BigDecimal.valueOf(10000)

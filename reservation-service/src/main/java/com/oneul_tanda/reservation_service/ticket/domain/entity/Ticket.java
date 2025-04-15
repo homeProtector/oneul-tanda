@@ -45,13 +45,17 @@ public class Ticket extends BaseTimeEntity {
     /**
      * 티켓 생성
      */
-    public static Ticket createTicket(Passenger passenger, UUID flightId, SeatClass seatClass, BigDecimal unitPrice) {
-        return Ticket.builder()
+    public static Ticket createTicket(Passenger passenger, UUID flightId, UUID userId, SeatClass seatClass, BigDecimal unitPrice) {
+        Ticket ticket = Ticket.builder()
                 .passenger(passenger)
                 .flightId(flightId)
                 .seatClass(seatClass)
                 .unitPrice(unitPrice)
                 .build();
+
+        ticket.registerCreatedBy(userId);
+
+        return ticket;
     }
 
 
@@ -60,12 +64,16 @@ public class Ticket extends BaseTimeEntity {
     /**
      * 티켓 임시 생성
      */
-    public static Ticket createTicketWithoutPassenger(UUID flightId, SeatClass seatClass, BigDecimal unitPrice) {
-        return Ticket.builder()
+    public static Ticket createTicketWithoutPassenger(UUID flightId, UUID userId, SeatClass seatClass, BigDecimal unitPrice) {
+         Ticket ticket = Ticket.builder()
                 .flightId(flightId)
                 .seatClass(seatClass)
                 .unitPrice(unitPrice)
                 .build();
+
+        ticket.registerCreatedBy(userId);
+
+        return ticket;
     }
 
 
