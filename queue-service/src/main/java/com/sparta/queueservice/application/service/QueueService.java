@@ -54,7 +54,7 @@ public class QueueService {
     }
 
     //대기열 진입 후 선점 과정
-    public void processReserve(UUID flightId) {
+    public synchronized void processReserve(UUID flightId) {
         String key = "ranks:" +  flightId;
         // flightId를 받아 좌석 수를 조회
 //        FlightResponse flightResponse = flightClient.getAirport(flightId);
