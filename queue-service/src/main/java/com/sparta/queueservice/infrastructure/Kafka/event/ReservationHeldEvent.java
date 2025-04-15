@@ -21,12 +21,12 @@ public class ReservationHeldEvent {
     @AllArgsConstructor
     public static class Data {
         private UUID flightId;
-        private String userId;
+        private UUID userId;
         private Integer seatCount;
     }
 
     public static ReservationHeldEvent createReservationEvent(UUID flightId,
-                                                              String userId,
+                                                              UUID userId,
                                                               int seatCount,
                                                               EventStatusEnum status) {
         return ReservationHeldEvent.builder()

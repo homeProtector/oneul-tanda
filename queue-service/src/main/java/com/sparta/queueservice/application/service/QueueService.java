@@ -32,7 +32,7 @@ public class QueueService {
     }
 
     // 예약 신청시 대기열 진입후 대기열 선점
-    public void tryReserve(FlightRequestDto request, String userId) {
+    public void tryReserve(FlightRequestDto request, UUID userId) {
         // 예약 신청한 flightId 와 좌석 수
         UUID flightId = request.getFlightId();
         int seatCount = request.getSeatCount();
@@ -77,7 +77,7 @@ public class QueueService {
         // 좌석 수가 남아 있을때 대기열 선점 좌석 수가 0이면 실패 메시지를 보낸 후 대기열에서 삭제
         for(String reserveInfo : topUsers) {
             String[] parts =  reserveInfo.split(":");
-            String userId = parts[0];
+            UUID userId = UUID.fromString(parts[0]);
             int seatCount = Integer.parseInt(parts[1]);
 
             if(seatCount <= remainingSeats) { // 대기열 선점 성공시 항공편의 좌석 수 차감 후 성공 메세지 전달
@@ -88,7 +88,6 @@ public class QueueService {
                 log.info("대기열 선점에 성공 했습니다. 남은 좌석 수: {}", remainingSeats);
                 rankOps.remove(key, reserveInfo);
                 producerService.sendReserveSuccess(flightId, userId, seatCount, EventStatusEnum.SUCCESS);
-//                deleteExistReserve(flightId, userId);
 
             } else { // 대기열 선점 실패서 실패 메세지 전달
                 log.info("대기열 선점에 실패했습니다. 남은 좌석 수: {}", remainingSeats);
@@ -104,20 +103,20 @@ public class QueueService {
     }
 
     // 중복 유저가 있는지 체크
-    private boolean existReserve(UUID flightId, String userId) {
+    private boolean existReserve(UUID flightId, UUID userId) {
         String key = "reserve:" +  flightId + ":" + userId;
         return redisTemplate.hasKey(key);
     }
 
     // userId와 flightId를 redis 에 저장해 중복 체크
-    private void setExistReserve(UUID flightId, String userId) {
+    private void setExistReserve(UUID flightId, UUID userId) {
         String key = "reserve:" +  flightId + ":" + userId;
         log.info("중복 예약 방지 키: {}", key);
         redisTemplate.opsForValue().set(key, "1", Duration.ofMinutes(5));
     }
 
     // 대기열 선점 실패시 sortedSet 과 같이 삭제
-    public void deleteExistReserve(UUID flightId, String userId) {
+    public void deleteExistReserve(UUID flightId, UUID userId) {
         String key = "reserve:" +  flightId + ":" + userId;
         redisTemplate.delete(key);
     }
