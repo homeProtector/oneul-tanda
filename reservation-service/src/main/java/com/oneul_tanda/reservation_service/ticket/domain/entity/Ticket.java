@@ -1,5 +1,6 @@
 package com.oneul_tanda.reservation_service.ticket.domain.entity;
 
+import com.oneul_tanda.reservation_service.common.entity.BaseTimeEntity;
 import com.oneul_tanda.reservation_service.passenger.domain.entity.Passenger;
 import com.oneul_tanda.reservation_service.reservation.domain.entity.Reservation;
 import jakarta.persistence.*;
@@ -15,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder(access = AccessLevel.PRIVATE)
-public class Ticket {
+public class Ticket extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -37,20 +38,42 @@ public class Ticket {
     private Reservation reservation;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "passenger_id", nullable = false)
+    @JoinColumn(name = "passenger_id")
     private Passenger passenger;
 
 
     /**
      * 티켓 생성
      */
-    public static Ticket createTicket(Passenger passenger, UUID flightId, SeatClass seatClass, BigDecimal unitPrice) {
-        return Ticket.builder()
+    public static Ticket createTicket(Passenger passenger, UUID flightId, UUID userId, SeatClass seatClass, BigDecimal unitPrice) {
+        Ticket ticket = Ticket.builder()
                 .passenger(passenger)
                 .flightId(flightId)
                 .seatClass(seatClass)
                 .unitPrice(unitPrice)
                 .build();
+
+        ticket.registerCreatedBy(userId);
+
+        return ticket;
+    }
+
+
+
+
+    /**
+     * 티켓 임시 생성
+     */
+    public static Ticket createTicketWithoutPassenger(UUID flightId, UUID userId, SeatClass seatClass, BigDecimal unitPrice) {
+         Ticket ticket = Ticket.builder()
+                .flightId(flightId)
+                .seatClass(seatClass)
+                .unitPrice(unitPrice)
+                .build();
+
+        ticket.registerCreatedBy(userId);
+
+        return ticket;
     }
 
 
@@ -58,5 +81,16 @@ public class Ticket {
     public void associateTicket(Reservation reservation) {
         this.reservation = reservation; // 티켓이 예약을 참조하도록 설정
     }
+
+
+
+
+    /**
+     * 티켓 확정
+     */
+    public void confirmTicket(Passenger passenger) {
+        this.passenger = passenger;
+    }
+
 
 }
