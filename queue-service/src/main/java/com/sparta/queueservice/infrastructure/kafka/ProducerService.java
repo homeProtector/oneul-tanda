@@ -23,6 +23,7 @@ public class ProducerService {
         kafkaTemplate.send("reservation-held", flightId.toString(), event);
     }
     // 대기열 선점 실패시 실패 메세지 전달
+
     public void sendReserveFailed(UUID flightId, UUID userId, int seatCount,  EventStatusEnum status) {
         ReservationHeldEvent event = ReservationHeldEvent
                 .createReservationEvent(flightId, userId, seatCount, status);

@@ -31,7 +31,6 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
 
 
-
 server:
   port: 19095
 
