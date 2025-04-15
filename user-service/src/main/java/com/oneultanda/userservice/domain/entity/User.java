@@ -63,7 +63,6 @@ public class User extends BaseTimeEntity {
                 .contact(contact)
                 .role(Role.CUSTOMER)
                 .build();
-        user.registerCreatedBy(username);
 
         return user;
     }

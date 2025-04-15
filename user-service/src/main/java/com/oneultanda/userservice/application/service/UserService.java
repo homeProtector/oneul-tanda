@@ -79,7 +79,7 @@ public class UserService {
     public void deleteUser(UUID userId, DeleteUserCommand command) {
         User user = checkUser(userId);
         checkPassword(user, command.password());
-        user.markDeleted(user.getUsername());
+        user.markDeleted(userId);
     }
 
     @Transactional(readOnly = true)
