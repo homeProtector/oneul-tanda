@@ -20,4 +20,14 @@ public interface FlightRepository {
 
     @Query("SELECT f FROM FlightEntity f WHERE f.id = :flightId AND f.deletedAt IS NULL")
     Optional<FlightEntity> findById(UUID flightId);
+
+    @Query("""
+                SELECT f FROM FlightEntity f
+                WHERE f.flightNum = :flightNum
+                  AND f.departureDate = :departureTime
+                  AND f.arrivalDate = :arrivalTime
+                  AND f.deletedAt IS NULL
+            """)
+    Optional<FlightEntity> findByFlightNumAndDepartureDateAndArrivalDate(
+            String flightNum, LocalDateTime departureTime, LocalDateTime arrivalTime);
 }
