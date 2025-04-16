@@ -1,6 +1,7 @@
 package com.sparta.queueservice.application.service;
 
 import com.sparta.queueservice.application.dto.FlightRequestDto;
+import com.sparta.queueservice.infrastructure.client.FlightResponse;
 import com.sparta.queueservice.infrastructure.kafka.ProducerService;
 import com.sparta.queueservice.infrastructure.kafka.event.EventStatusEnum;
 import com.sparta.queueservice.infrastructure.client.FlightClient;
@@ -17,14 +18,14 @@ import java.util.UUID;
 @Service
 public class QueueService {
     private final ZSetOperations<String, String> rankOps;
-//    private final FlightClient flightClient;
+    private final FlightClient flightClient;
     private final ProducerService producerService;
     private final RedisTemplate<String, String> redisTemplate;
 
     public QueueService(FlightClient airportClient,
                         RedisTemplate<String, String> redisTemplate,
                         ProducerService producerService) {
-//        this.flightClient = airportClient;
+        this.flightClient = airportClient;
         this.rankOps = redisTemplate.opsForZSet();
         this.producerService = producerService;
         this.redisTemplate = redisTemplate;
@@ -41,6 +42,7 @@ public class QueueService {
         // 중복 예약 체크
         if(existReserve(flightId, userId)) {
             log.info("중복된 항공편 입니다. flightId: {} ", flightId);
+            producerService.sendReserveFailed(flightId, userId, seatCount, EventStatusEnum.DUPLICATE);
             return;
         }
 
@@ -54,20 +56,22 @@ public class QueueService {
     }
 
     //대기열 진입 후 선점 과정
-    public void processReserve(UUID flightId) {
+    public synchronized void processReserve(UUID flightId) {
         String key = "ranks:" +  flightId;
         // flightId를 받아 좌석 수를 조회
-//        FlightResponse flightResponse = flightClient.getAirport(flightId);
-//        int remainingSeats = flightResponse.getRemainingSeats();
-        // 테스트시 동시성 제어를 위한 redis 저장
-        String remainingSeatsStr = redisTemplate.opsForValue().get("seat:" + flightId);
-        // 값이 없다면, 기본 값인 10을 설정하여 redis 에 저장
-        int remainingSeats = (remainingSeatsStr != null) ? Integer.parseInt(remainingSeatsStr) : 10;
-        if (remainingSeatsStr == null) {
-            // 최초 저장 시에 redis 에 값 설정
-            redisTemplate.opsForValue().set("seat:" + flightId, String.valueOf(remainingSeats));
-            log.info("좌석 수 최초 설정: {}", remainingSeats);
-        }
+        FlightResponse flightResponse = flightClient.getFlight(flightId);
+        int remainingSeats = flightResponse.getRemainingSeats();
+
+//        // 테스트시 동시성 제어를 위한 redis 저장
+//        String remainingSeatsStr = redisTemplate.opsForValue().get("seat:" + flightId);
+//        // 값이 없다면, 기본 값인 10을 설정하여 redis 에 저장
+//        int remainingSeats = (remainingSeatsStr != null) ? Integer.parseInt(remainingSeatsStr) : 50;
+//        if (remainingSeatsStr == null) {
+//            // 최초 저장 시에 redis 에 값 설정
+//            redisTemplate.opsForValue().set("seat:" + flightId, String.valueOf(remainingSeats));
+//            log.info("좌석 수 최초 설정: {}", remainingSeats);
+//        }
+
         // 대기열에 있는 모든 유저 조회
         Set<String> topUsers = rankOps.range(key, 0, -1);
         if (topUsers == null || topUsers.isEmpty()) {
@@ -81,9 +85,10 @@ public class QueueService {
 
             if(seatCount <= remainingSeats) { // 대기열 선점 성공시 항공편의 좌석 수 차감 후 성공 메세지 전달
                 // 좌석 수 차감 api 필요 (임시 좌석 차감 로직)
-                remainingSeats -= seatCount;
-                redisTemplate.opsForValue().set("seat:" + flightId, String.valueOf(remainingSeats));
-
+//                remainingSeats -= seatCount;
+//                redisTemplate.opsForValue().set("seat:" + flightId, String.valueOf(remainingSeats));
+                // 실제 항공편 서비스 좌석 차감
+                flightClient.decreaseSeats(flightId, seatCount);
                 log.info("대기열 선점에 성공 했습니다. 남은 좌석 수: {}", remainingSeats);
                 rankOps.remove(key, reserveInfo);
                 producerService.sendReserveSuccess(flightId, userId, seatCount, EventStatusEnum.SUCCESS);
