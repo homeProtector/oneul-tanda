@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -132,6 +133,7 @@ public class FlightService {
     }
 
     @Transactional
+    @CacheEvict(value = "flights", key = "#flightId") // 캐시 무효화
     public void decreaseSeats(UUID flightId, Integer requiredSeats) {
         FlightEntity flight = flightRepository.findById(flightId)
                 .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
@@ -140,6 +142,7 @@ public class FlightService {
     }
 
     @Transactional
+    @CacheEvict(value = "flights", key = "#flightId") // 캐시 무효화
     public void increaseSeats(UUID flightId, Integer requiredSeats) {
         FlightEntity flight = flightRepository.findById(flightId)
                 .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
