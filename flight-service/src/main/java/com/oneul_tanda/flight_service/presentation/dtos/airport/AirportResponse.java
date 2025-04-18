@@ -17,16 +17,16 @@ public class AirportResponse {
     private UUID id;
     private String code;
     private String name;
-    private String country;
     private String city;
+    private String country;
 
     public static AirportResponse from(Airport airport) {
         return AirportResponse.builder()
                 .id(airport.getId())
                 .code(airport.getCode())
                 .name(airport.getName())
-                .country(airport.getCountry())
                 .city(airport.getCity())
+                .country(airport.getCountry())
                 .build();
     }
 }
