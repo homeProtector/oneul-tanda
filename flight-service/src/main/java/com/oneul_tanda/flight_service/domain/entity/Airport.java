@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(access = AccessLevel.PRIVATE)
-@Table(name = "m_airports")
+@Table(name = "p_airports")
 @Entity
 public class Airport extends BaseTimeEntity {
 
