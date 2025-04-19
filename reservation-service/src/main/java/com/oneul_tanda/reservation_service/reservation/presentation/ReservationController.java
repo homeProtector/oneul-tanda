@@ -1,6 +1,7 @@
 package com.oneul_tanda.reservation_service.reservation.presentation;
 
 import com.oneul_tanda.reservation_service.reservation.application.command.ConfirmReservationCommand;
+import com.oneul_tanda.reservation_service.reservation.application.command.CreateReservationCommand;
 import com.oneul_tanda.reservation_service.reservation.application.service.ReservationService;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.request.create.CreateReservationRequestDto;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.request.update.ConfirmReservationRequestDto;
@@ -39,7 +40,7 @@ public class ReservationController {
             @RequestHeader("X-User-ID") UUID userId,
             @RequestBody CreateReservationRequestDto requestDto
     ) {
-        return ResponseEntity.ok(reservationService.createReservation(requestDto));
+        return ResponseEntity.ok(reservationService.createReservation(CreateReservationCommand.of(userId, requestDto)));
     }
 
 
