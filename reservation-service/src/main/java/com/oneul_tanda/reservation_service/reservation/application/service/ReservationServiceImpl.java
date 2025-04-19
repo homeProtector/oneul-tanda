@@ -4,12 +4,12 @@ import com.oneul_tanda.reservation_service.common.exception.CustomException;
 import com.oneul_tanda.reservation_service.passenger.domain.entity.Passenger;
 import com.oneul_tanda.reservation_service.reservation.application.command.ConfirmReservationCommand;
 import com.oneul_tanda.reservation_service.reservation.application.command.CreateHoldReservationCommand;
+import com.oneul_tanda.reservation_service.reservation.application.command.CreateReservationCommand;
 import com.oneul_tanda.reservation_service.reservation.application.exception.ReservationErrorCode;
 import com.oneul_tanda.reservation_service.reservation.domain.entity.Reservation;
 import com.oneul_tanda.reservation_service.reservation.domain.repository.ReservationRepository;
 import com.oneul_tanda.reservation_service.reservation.infrastructure.client.FlightClient;
 import com.oneul_tanda.reservation_service.reservation.infrastructure.client.dto.response.GetFlightInfo;
-import com.oneul_tanda.reservation_service.reservation.presentation.dto.request.create.CreateReservationRequestDto;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.response.create.CreateHoldReservationResponseDto;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.response.create.CreateReservationResponseDto;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.response.read.ReadReservationResponseDto;
@@ -38,42 +38,25 @@ public class ReservationServiceImpl implements ReservationService {
     private final FlightClient flightClient;
 
     /**
-     * 예약 생성
+     * 예약 생성 (동기 처리)
      */
     @Override
-    public CreateReservationResponseDto createReservation(CreateReservationRequestDto requestDto) {
+    public CreateReservationResponseDto createReservation(CreateReservationCommand command) {
 
-        // 탑승객 + 티켓 생성
-        List<Ticket> ticketList = new ArrayList<>();
+        // 중복 예약 생성 검증
+        validateDuplicateHoldReservation(command.userId(), command.flightId());
 
-        for (CreateReservationRequestDto.CreateTicketRequestDto ticketDto : requestDto.tickets()) {
-            // 탑승객 생성
-            Passenger passenger = Passenger.createPassenger(
-                            requestDto.userId(),
-                            ticketDto.passenger().name(),
-                            ticketDto.passenger().birth(),
-                            ticketDto.passenger().gender(),
-                            ticketDto.passenger().passportNumber()
-            );
+        // FeignClient 항공편 조회 및 데이터 획득
+        GetFlightInfo flightInfo = flightClient.getFlight(command.flightId());
 
-            // 티켓 생성
-            Ticket ticket = Ticket.createTicket(
-                    passenger,
-                    ticketDto.flightId(),
-                    requestDto.userId(),
-                    ticketDto.seatClass(),
-                    ticketDto.price()
-            );
+        // 좌석 수 검증 및 좌석 차감
+        validateSeatAndReserve(command, flightInfo);
 
-            ticketList.add(ticket);
-        }
-
+        // 티켓 생성 (탑승객 정보o)
+        List<Ticket> ticketList = createTicketsWithPassengers(command, flightInfo);
 
         // 예약 생성
-        Reservation reservation = Reservation.createReservation(
-                requestDto.userId(),
-                ticketList
-        );
+        Reservation reservation = Reservation.createReservation(command.userId(), ticketList);
 
         return CreateReservationResponseDto.from(reservationRepository.save(reservation));
     }
@@ -216,6 +199,35 @@ public class ReservationServiceImpl implements ReservationService {
                 .orElseThrow(() -> CustomException.from(ReservationErrorCode.NOT_FOUND));
     }
 
+    // 티켓 생성
+    private List<Ticket> createTicketsWithPassengers(CreateReservationCommand command, GetFlightInfo flightInfo) {
+
+        List<Ticket> ticketList = new ArrayList<>();
+
+        for (CreateReservationCommand.CreatePassengerCommand passengerCommand : command.passengers()) {
+            Passenger passenger = Passenger.createPassenger(
+                    command.userId(),
+                    passengerCommand.name(),
+                    passengerCommand.birth(),
+                    passengerCommand.gender(),
+                    passengerCommand.passportNumber()
+            );
+
+            Ticket ticket = Ticket.createTicket(
+                    passenger,
+                    command.flightId(),
+                    command.userId(),
+                    SeatClass.ECONOMY,
+                    flightInfo.price(),
+                    flightInfo.departureDate(),
+                    flightInfo.arrivalDate()
+            );
+
+            ticketList.add(ticket);
+        }
+
+        return ticketList;
+    }
 
 
     // 티켓 임시 생성
@@ -245,5 +257,15 @@ public class ReservationServiceImpl implements ReservationService {
             throw CustomException.from(ReservationErrorCode.DUPLICATE_HOLD);
         }
     }
+
+
+    // 좌석 수 검증 및 좌석 차감
+    private void validateSeatAndReserve(CreateReservationCommand command, GetFlightInfo flightInfo) {
+        if (flightInfo.remainingSeats() < command.seatCount()) {
+            throw CustomException.from(ReservationErrorCode.SEAT_NOT_ENOUGH);
+        }
+        flightClient.decreaseSeats(command.flightId(), command.seatCount());
+    }
+
 
 }
