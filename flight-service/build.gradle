@@ -29,6 +29,9 @@ repositories {
 }
 
 dependencies {
+	// interval과 duration을 매핑하기 위한 의존성
+	implementation("com.vladmihalcea:hibernate-types-60:2.21.1")
+
 	// Amadeus
 	implementation 'com.amadeus:amadeus-java:5.0.0'
 
