@@ -21,6 +21,13 @@ public interface FlightClient {
 
 
     /**
+     * 좌석 차감
+     */
+    @PutMapping("/api/v1/flights/{flightId}/seats/decrease")
+    ResponseEntity<Void> decreaseSeats(@PathVariable UUID flightId, @RequestParam Integer requiredSeats);
+
+
+    /**
      * 좌석 복구
      */
     @PutMapping("/api/v1/flights/{flightId}/seats/increase")

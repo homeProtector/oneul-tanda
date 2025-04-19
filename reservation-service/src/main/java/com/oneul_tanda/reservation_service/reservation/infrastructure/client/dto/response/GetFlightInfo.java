@@ -6,8 +6,14 @@ import java.util.UUID;
 
 public record GetFlightInfo(
         UUID id,
+        String flightNum,
+        String airlineCode,
+        String departureAirportCode,
+        String arrivalAirportCode,
         LocalDateTime departureDate,
         LocalDateTime arrivalDate,
-        BigDecimal price
+        String  formattedDuration,
+        BigDecimal price,
+        Integer remainingSeats
 ) {
 }
