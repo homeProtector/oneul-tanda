@@ -149,26 +149,10 @@ public class ReservationServiceImpl implements ReservationService {
         // 2. 예약 취소
         reservation.cancel();
 
+        // 3. 선점된 좌석 복구
+        restoreReservedSeats(reservation);
 
-        // 3. 좌석 수 추출
-        Integer seatCount = reservation.getTicketList().size();
-
-
-        // 4. 항공편 ID 추출 (모든 티켓이 동일한 flightId라고 가정)
-        UUID flightId = reservation.getTicketList().get(0).getFlightId();
-
-
-        // 5. 좌석 복구 요청
-        // TODO: 분산 트랜잭션 어떻게 관리? 1. Saga 패턴의 보상트랜잭션,  2. 이벤트 발행, 3. 기타
-        try {
-            flightClient.increaseSeats(flightId, seatCount);
-
-        } catch (Exception e) {
-            log.error("좌석 복원 실패 - flightId={}, seatCounts={}, error={}", flightId, seatCount, e.getMessage(), e);
-            throw new RuntimeException("좌석 복원 실패로 예약 취소 롤백");
-        }
-
-        // 6. 응답 반환 
+        // 4. 응답 반환
         return CancelReservationResponseDto.of(reservation.getId());
     }
 
@@ -251,6 +235,24 @@ public class ReservationServiceImpl implements ReservationService {
 
             // 2-3. 티켓에 탑승객 정보 매핑
             ticket.confirmTicket(passenger);
+        }
+    }
+
+
+    // 선점된 좌석 복구
+    private void restoreReservedSeats(Reservation reservation) {
+
+        Integer seatCount = reservation.getTicketList().size();
+        UUID flightId = reservation.getTicketList().get(0).getFlightId();
+
+        // 좌석 복구 요청
+        // TODO: 분산 트랜잭션 어떻게 관리? 1. Saga 패턴의 보상트랜잭션,  2. 이벤트 발행, 3. 기타
+        try {
+            flightClient.increaseSeats(flightId, seatCount);
+
+        } catch (Exception e) {
+            log.error("좌석 복원 실패 - flightId={}, seatCounts={}, error={}", flightId, seatCount, e.getMessage(), e);
+            throw new RuntimeException("좌석 복원 실패로 예약 취소 롤백");
         }
     }
 
