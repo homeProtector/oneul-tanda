@@ -44,7 +44,7 @@ public class ReservationServiceImpl implements ReservationService {
     public CreateReservationResponseDto createReservation(CreateReservationCommand command) {
 
         // 중복 예약 생성 검증
-        validateDuplicateHoldReservation(command.userId(), command.flightId());
+        validateDuplicateReservation(command.userId(), command.flightId());
 
         // FeignClient 항공편 조회 및 데이터 획득
         GetFlightInfo flightInfo = flightClient.getFlight(command.flightId());
@@ -70,7 +70,7 @@ public class ReservationServiceImpl implements ReservationService {
     public CreateHoldReservationResponseDto createHoldReservation(CreateHoldReservationCommand command) {
 
         // 중복 예약 생성 검증
-        validateDuplicateHoldReservation(command.userId(), command.flightId());
+        validateDuplicateReservation(command.userId(), command.flightId());
 
         // FeignClient 항공편 조회 및 데이터 획득
         GetFlightInfo flightInfo = flightClient.getFlight(command.flightId());
@@ -252,7 +252,7 @@ public class ReservationServiceImpl implements ReservationService {
 
         } catch (Exception e) {
             log.error("좌석 복원 실패 - flightId={}, seatCounts={}, error={}", flightId, seatCount, e.getMessage(), e);
-            throw new RuntimeException("좌석 복원 실패로 예약 취소 롤백");
+            throw CustomException.from(ReservationErrorCode.FLIGHT_SEAT_RESTORE_FAILED);
         }
     }
 
@@ -267,9 +267,9 @@ public class ReservationServiceImpl implements ReservationService {
 
 
     // 중복 예약 생성 검증
-    private void validateDuplicateHoldReservation(UUID userId, UUID flightId) {
+    private void validateDuplicateReservation(UUID userId, UUID flightId) {
         if (reservationRepository.findByUserIdAndFlightId(userId, flightId).isPresent()) {
-            throw CustomException.from(ReservationErrorCode.DUPLICATE_HOLD);
+            throw CustomException.from(ReservationErrorCode.RESERVATION_DUPLICATE);
         }
     }
 
@@ -277,7 +277,7 @@ public class ReservationServiceImpl implements ReservationService {
     // 좌석 수 검증 및 좌석 차감
     private void validateSeatAndReserve(CreateReservationCommand command, GetFlightInfo flightInfo) {
         if (flightInfo.remainingSeats() < command.seatCount()) {
-            throw CustomException.from(ReservationErrorCode.SEAT_NOT_ENOUGH);
+            throw CustomException.from(ReservationErrorCode.FLIGHT_SEAT_NOT_ENOUGH);
         }
         flightClient.decreaseSeats(command.flightId(), command.seatCount());
     }
