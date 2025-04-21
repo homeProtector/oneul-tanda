@@ -2,14 +2,14 @@ package com.oneul_tanda.reservation_service.reservation.application.service;
 
 import com.oneul_tanda.reservation_service.common.exception.CustomException;
 import com.oneul_tanda.reservation_service.passenger.domain.entity.Passenger;
+import com.oneul_tanda.reservation_service.reservation.application.client.FlightClient;
 import com.oneul_tanda.reservation_service.reservation.application.command.ConfirmReservationCommand;
 import com.oneul_tanda.reservation_service.reservation.application.command.CreateHoldReservationCommand;
 import com.oneul_tanda.reservation_service.reservation.application.command.CreateReservationCommand;
 import com.oneul_tanda.reservation_service.reservation.application.exception.ReservationErrorCode;
 import com.oneul_tanda.reservation_service.reservation.domain.entity.Reservation;
 import com.oneul_tanda.reservation_service.reservation.domain.repository.ReservationRepository;
-import com.oneul_tanda.reservation_service.reservation.infrastructure.client.FlightClient;
-import com.oneul_tanda.reservation_service.reservation.infrastructure.client.dto.response.GetFlightInfo;
+import com.oneul_tanda.reservation_service.reservation.application.client.dto.response.GetFlightInfo;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.response.create.CreateHoldReservationResponseDto;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.response.create.CreateReservationResponseDto;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.response.read.ReadReservationResponseDto;
