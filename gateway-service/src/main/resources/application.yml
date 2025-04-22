@@ -8,7 +8,7 @@ spring:
     name: gateway-service  # 애플리케이션 이름을 'gateway-service'로 설정
   cloud:
     gateway:
-      routes:  # Spring Cloud Gateway의 라우팅 설정
+      routes: # Spring Cloud Gateway의 라우팅 설정
         - id: user-service
           uri: lb://user-service
           predicates:
@@ -16,11 +16,8 @@ spring:
         - id: flight-service
           uri: lb://flight-service
           predicates:
-            - Path=/api/v1/airlines/**
-            - Path=/api/v1/airports/**
-            - Path=/api/v1/flights/**
-            - Path=/api/v1/amadeus/**
-            # amadeus의 경우에는 internal로 추정
+            - Path=/api/v1/airlines/**, /api/v1/airports/**, /api/v1/flights/**, /api/v1/amadeus/**
+        # amadeus의 경우에는 internal로 추정
         - id: queue-service
           uri: lb://queue-service
           predicates:
