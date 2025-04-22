@@ -1,6 +1,6 @@
 package com.sparta.paymentservice.domain.entity;
 
-public enum StatusEnum {
+public enum PaymentStatusEnum {
     PENDING,
     SUCCESS,
     FAILED

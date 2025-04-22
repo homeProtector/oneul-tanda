@@ -23,17 +23,15 @@ public class Payments {
     private Integer totalPrice;
 
     @Column(nullable = false)
-    private TypeEnum paymentType;
+    private PaymentTypeEnum paymentType;
 
     @Column(nullable = false)
-    private StatusEnum paymentStatus;
+    private PaymentStatusEnum paymentStatus;
 
-    public static Payments create(UUID paymentId,
-                                  Integer totalPrice,
-                                  TypeEnum paymentType,
-                                  StatusEnum paymentStatus) {
+    public static Payments create(Integer totalPrice,
+                                  PaymentTypeEnum paymentType,
+                                  PaymentStatusEnum paymentStatus) {
         return Payments.builder()
-                .paymentId(paymentId)
                 .totalPrice(totalPrice)
                 .paymentType(paymentType)
                 .paymentStatus(paymentStatus)
