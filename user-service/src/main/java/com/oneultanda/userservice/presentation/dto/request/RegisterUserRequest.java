@@ -3,7 +3,6 @@ package com.oneultanda.userservice.presentation.dto.request;
 import com.oneultanda.userservice.application.dto.comand.RegisterUserCommand;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 public record RegisterUserRequest(

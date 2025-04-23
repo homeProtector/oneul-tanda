@@ -2,7 +2,6 @@ package com.oneultanda.userservice.presentation.dto.request;
 
 import com.oneultanda.userservice.application.dto.comand.LoginUserCommand;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 public record LoginUserRequest(
 
