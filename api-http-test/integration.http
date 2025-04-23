@@ -26,10 +26,8 @@ Content-Type: application/json
   "username": "tester",
   "password": "12345678a*"
 }
-
 > {%
-    // 로그인 응답에서 access_token 값을 추출해서 `access_token` 변수에 저장
-    client.global.set("access_token", response.headers.valueOf("Authorization"));
+    client.global.set("access_token", response.headers.valueOf("Authorization"))
 %}
 
 ### 항공편 조회 및 저장
@@ -71,7 +69,7 @@ Authorization: Bearer {{access_token}}
 ### 예약 확정(예약 수정)
 PUT http://localhost:19091/api/v1/reservations/df4aa5d2-2e7b-4728-a5b7-9cbbe1f7d35d/confirm
 Content-Type: application/json
-X-User-ID: 9b7f421f-47b0-47f5-aa5c-8f489697a57d
+Authorization: Bearer {{access_token}}
 
 {
   "tickets": [
