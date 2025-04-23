@@ -41,7 +41,7 @@ public class UserController {
     ) {
         String accessToken = userservice.loginUser(request.toCommand());
         return ResponseEntity.ok()
-                .header("Authorization", "Bearer " + accessToken)
+                .header("Authorization", accessToken)
                 .build();
     }
 
