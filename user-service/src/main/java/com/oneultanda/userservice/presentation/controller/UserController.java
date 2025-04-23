@@ -101,7 +101,7 @@ public class UserController {
     }
 
     /**
-     * todo: 현재 내부에서 권한 확인하고 있지만 이걸 gateway에서 진행해줘야하는가?
+     * admin만 가능한 유저정보 조회
      */
     @GetMapping("/admin/{username}")
     public ResponseEntity<UserResponse> getUserFromUsername(
@@ -126,18 +126,4 @@ public class UserController {
         URI location = userservice.updateRole(role, username, request.toCommand());
         return ResponseEntity.ok().location(location).build();
     }
-
-    /**
-     * 외부에서는 접근 불가능하도록 해야하는 feign client 전용
-     * todo: 1. 분리하기 2. gateway에서 이곳으로의 접근 차단or 없는 url인척하기
-     */
-    @GetMapping("/{userId}")
-    public ResponseEntity<UserResponse> getUserFromUserId(
-            @PathVariable final UUID userId
-    ) {
-        User user = userservice.getUser(userId);
-        UserResponse response = UserResponse.fromUser(user);
-        return ResponseEntity.ok(response);
-    }
-
 }

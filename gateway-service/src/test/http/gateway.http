@@ -74,7 +74,7 @@ Authorization: Bearer {{access_token}}
 }
 
 ### 유저 조회 userId기반
-GET http://localhost:19091/api/v1/users/43392dc4-3848-426d-bdfa-99946b3bedbb
+GET http://localhost:19091/internal/v1/users/09a6b989-86e0-4244-a120-683aef98a599
 Content-Type: application/json
 
 
