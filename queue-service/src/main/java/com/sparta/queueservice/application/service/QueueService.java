@@ -90,7 +90,7 @@ public class QueueService {
         Integer remainingSeats = flightResponse.getRemainingSeats();
 //        테스트시 동시성 제어를 위한 redis 저장
 //        String remainingSeatsStr = redisTemplate.opsForValue().get("seat:" + flightId);
-//        // 값이 없다면, 기본 값인 10을 설정하여 redis 에 저장
+        // 값이 없다면, 기본 값인 10을 설정하여 redis 에 저장
 //        int remainingSeats = (remainingSeatsStr != null) ? Integer.parseInt(remainingSeatsStr) : 50;
 //        if (remainingSeatsStr == null) {
 //            // 최초 저장 시에 redis 에 값 설정
@@ -108,6 +108,11 @@ public class QueueService {
             String[] parts =  reserveInfo.split(":");
             UUID userId = UUID.fromString(parts[0]);
             int seatCount = Integer.parseInt(parts[1]);
+
+            if (!isTopUser(userId, flightId)) {
+                log.info("순서가 아닙니다.");
+                return;
+            }
 
             if(seatCount <= remainingSeats) { // 대기열 선점 성공시 항공편의 좌석 수 차감 후 성공 메세지 전달
                 // 좌석 수 차감 api 필요 (임시 좌석 차감 로직)
@@ -149,5 +154,11 @@ public class QueueService {
     public void deleteExistReserve(UUID flightId, UUID userId) {
         String key = "reserve:" +  flightId + ":" + userId;
         redisTemplate.delete(key);
+    }
+
+    // 본인이 최상위 유저인지 아닌지 체크
+    private boolean isTopUser(UUID userId, UUID flightId) {
+        String topUser = rankOps.range("ranks:" + flightId, 0, 0).stream().findFirst().orElse(null);
+        return topUser != null && topUser.startsWith(userId.toString());
     }
 }
