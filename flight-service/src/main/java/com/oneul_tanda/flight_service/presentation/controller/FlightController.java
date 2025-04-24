@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,51 +48,44 @@ public class FlightController {
             @RequestParam(required = false) String arrivalAirport,
             @RequestParam(required = false) @DateTimeFormat(iso = ISO.DATE_TIME) LocalDateTime departureDate,
             @RequestParam(required = false) Integer requiredSeats,
-            @PageableDefault Pageable pageable
+            @PageableDefault Pageable pageable,
+            @RequestHeader("X-User-Role") String userRole
     ) {
         Page<FlightResponse> result = flightService.searchFlights(
                 departureAirport, arrivalAirport,
                 departureDate, requiredSeats,
-                pageable);
+                pageable, userRole);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @PostMapping
     public ResponseEntity<FlightResponse> createFlight(
-            @RequestBody @Valid CreateFlightRequest request
+            @RequestBody @Valid CreateFlightRequest request,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole
     ) {
-        FlightResponse response = flightService.createFlight(request.toCommand());
+        FlightResponse response = flightService.createFlight(request.toCommand(), userId, userRole);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{flightId}")
     public ResponseEntity<FlightResponse> updateFlight(
             @PathVariable UUID flightId,
-            @RequestBody @Valid UpdateFlightRequest request
+            @RequestBody @Valid UpdateFlightRequest request,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole
     ) {
-        FlightResponse response = flightService.updateFlight(request.toCommand(flightId));
+        FlightResponse response = flightService.updateFlight(request.toCommand(flightId), userId, userRole);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{flightId}")
     public ResponseEntity<Void> deleteFlight(
-            @PathVariable UUID flightId
+            @PathVariable UUID flightId,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole
     ) {
-        flightService.deleteFlight(flightId);
+        flightService.deleteFlight(flightId, userId, userRole);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
-    // 좌석 차감
-    @PutMapping("/{flightId}/seats/decrease")
-    public ResponseEntity<Void> decreaseSeats(@PathVariable UUID flightId, @RequestParam Integer requiredSeats) {
-        flightService.decreaseSeats(flightId, requiredSeats);
-        return ResponseEntity.status(HttpStatus.OK).build();
-    }
-
-    // 좌석 복구
-    @PutMapping("/{flightId}/seats/increase")
-    public ResponseEntity<Void> increaseSeats(@PathVariable UUID flightId, @RequestParam Integer requiredSeats) {
-        flightService.increaseSeats(flightId, requiredSeats);
-        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

@@ -21,7 +21,9 @@ public class AirportExternalService {
     private final AirportRepository airportRepository;
 
     // 실시간 공항 정보 조회
-    public Location[] searchAirports(String keyword) throws Exception {
+    public Location[] searchAirports(String keyword, String userRole) throws Exception {
+        validateUserRole(userRole);
+
         return amadeus.referenceData.locations.get(
                 Params.with("subType", "AIRPORT")
                         .and("keyword", keyword)
@@ -30,7 +32,9 @@ public class AirportExternalService {
     }
 
     // 실시간 공항 정보 조회 및 DB 저장
-    public List<AirportResponse> searchAndSaveAirports(String keyword) throws Exception {
+    public List<AirportResponse> searchAndSaveAirports(String keyword, String userRole) throws Exception {
+        validateUserRole(userRole);
+
         Location[] locations = amadeus.referenceData.locations
                 .get(Params.with("keyword", keyword).and("subType", "AIRPORT"));
 
@@ -51,5 +55,11 @@ public class AirportExternalService {
                     return AirportResponse.from(airport);
                 })
                 .toList();
+    }
+
+    private void validateUserRole(String userRole) {
+        if(userRole.equals("CUSTOMER")) {
+            throw new IllegalArgumentException("Access denied");
+        }
     }
 }

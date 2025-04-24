@@ -36,16 +36,17 @@ public class FlightService {
     @Cacheable(value = "flights", key = "#flightId")
     public FlightDetailResponse getFlight(UUID flightId) {
 
-        FlightEntity flight = flightRepository.findById(flightId)
-                .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
+        FlightEntity flight = getFlightById(flightId);
 
         return FlightDetailResponse.from(flight);
     }
 
     public Page<FlightResponse> searchFlights(String departureAirport, String arrivalAirport,
                                               LocalDateTime departureDate, Integer requiredSeats,
-                                              Pageable pageable
+                                              Pageable pageable, String userRole
     ) {
+        validateUserRole(userRole);
+
         Pageable adjusted = PagingUtil.adjustPageable(pageable);
         Page<FlightEntity> flights = flightRepositoryCustom.searchFlights(
                 departureAirport, arrivalAirport,
@@ -57,7 +58,8 @@ public class FlightService {
 
     @Transactional
     @CacheEvict(value = "flights", allEntries = true) // 캐시 무효화
-    public FlightResponse createFlight(CreateFlightCommand flightCommand) {
+    public FlightResponse createFlight(CreateFlightCommand flightCommand, UUID userId, String userRole) {
+        validateUserRole(userRole);
 
         if (flightRepository.findByFlightNumAndDepartureDate(flightCommand.getFlightNum(),
                         flightCommand.getDepartureDate())
@@ -66,12 +68,9 @@ public class FlightService {
         }
 
         // AirlineEntity와 Airport 엔티티 조회
-        AirlineEntity airline = airlineRepository.findByCode(flightCommand.getAirlineCode())
-                .orElseThrow(() -> new IllegalArgumentException("Airline not found"));
-        AirportEntity departureAirport = airportRepository.findByCode(flightCommand.getDepartureAirportCode())
-                .orElseThrow(() -> new IllegalArgumentException("Departure Airport not found"));
-        AirportEntity arrivalAirport = airportRepository.findByCode(flightCommand.getArrivalAirportCode())
-                .orElseThrow(() -> new IllegalArgumentException("Arrival Airport not found"));
+        AirlineEntity airline = getAirlineForCreateFlight(flightCommand);
+        AirportEntity departureAirport = getDepartureAirportForCreateFlight(flightCommand);
+        AirportEntity arrivalAirport = getArrivalAirportForCreateFlight(flightCommand);
 
         Duration duration = Duration.between(flightCommand.getDepartureDate(), flightCommand.getArrivalDate());
 
@@ -88,24 +87,20 @@ public class FlightService {
         );
 
         flightRepository.save(flight);
+        airline.updateCreationInfo(userId);
 
         return FlightResponse.from(flight);
     }
 
     @Transactional
     @CacheEvict(value = "flights", key = "#flightCommand.flightId") // 캐시 무효화
-    public FlightResponse updateFlight(UpdateFlightCommand flightCommand) {
+    public FlightResponse updateFlight(UpdateFlightCommand flightCommand, UUID userId, String userRole) {
+        validateUserRole(userRole);
+        FlightEntity flight = getFlightById(flightCommand.getFlightId());
 
-        FlightEntity flight = flightRepository.findById(flightCommand.getFlightId())
-                .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
-
-        // AirlineEntity와 Airport 엔티티 조회
-        AirlineEntity airline = airlineRepository.findByCode(flightCommand.getAirlineCode())
-                .orElseThrow(() -> new IllegalArgumentException("Airline not found"));
-        AirportEntity departureAirport = airportRepository.findByCode(flightCommand.getDepartureAirportCode())
-                .orElseThrow(() -> new IllegalArgumentException("Departure Airport not found"));
-        AirportEntity arrivalAirport = airportRepository.findByCode(flightCommand.getArrivalAirportCode())
-                .orElseThrow(() -> new IllegalArgumentException("Arrival Airport not found"));
+        AirlineEntity airline = getAirlineForUpdateFlight(flightCommand);
+        AirportEntity departureAirport = getDepartureAirportForUpdateFlight(flightCommand);
+        AirportEntity arrivalAirport = getArrivalAirportForUpdateFlight(flightCommand);
 
         Duration duration = Duration.between(flightCommand.getDepartureDate(), flightCommand.getArrivalDate());
 
@@ -121,26 +116,25 @@ public class FlightService {
                 flightCommand.getRemainingSeats()
         );
 
-//        flight.updateModificationInfo();
+        flight.updateModificationInfo(userId);
 
         return FlightResponse.from(flight);
     }
 
     @Transactional
     @CacheEvict(value = "flights", key = "#flightId") // 캐시 무효화
-    public void deleteFlight(UUID flightId) {
+    public void deleteFlight(UUID flightId, UUID userId, String userRole) {
+        validateUserRole(userRole);
 
-        FlightEntity flight = flightRepository.findById(flightId)
-                .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
+        FlightEntity flight = getFlightById(flightId);
 
-//        flight.updateDeletionInfo();
+        flight.updateDeletionInfo(userId);
     }
 
     @Transactional
     @CacheEvict(value = "flights", key = "#flightId") // 캐시 무효화
     public void decreaseSeats(UUID flightId, Integer requiredSeats) {
-        FlightEntity flight = flightRepository.findById(flightId)
-                .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
+        FlightEntity flight = getFlightById(flightId);
 
         flight.decreaseSeatCount(requiredSeats);
     }
@@ -148,9 +142,49 @@ public class FlightService {
     @Transactional
     @CacheEvict(value = "flights", key = "#flightId") // 캐시 무효화
     public void increaseSeats(UUID flightId, Integer requiredSeats) {
-        FlightEntity flight = flightRepository.findById(flightId)
-                .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
+        FlightEntity flight = getFlightById(flightId);
 
         flight.increaseSeatCount(requiredSeats);
+    }
+
+    private AirportEntity getArrivalAirportForUpdateFlight(UpdateFlightCommand flightCommand) {
+        return airportRepository.findByCode(flightCommand.getArrivalAirportCode())
+                .orElseThrow(() -> new IllegalArgumentException("Arrival Airport not found"));
+    }
+
+    private AirportEntity getDepartureAirportForUpdateFlight(UpdateFlightCommand flightCommand) {
+        return airportRepository.findByCode(flightCommand.getDepartureAirportCode())
+                .orElseThrow(() -> new IllegalArgumentException("Departure Airport not found"));
+    }
+
+    private AirlineEntity getAirlineForUpdateFlight(UpdateFlightCommand flightCommand) {
+        return airlineRepository.findByCode(flightCommand.getAirlineCode())
+                .orElseThrow(() -> new IllegalArgumentException("Airline not found"));
+    }
+
+    private AirportEntity getArrivalAirportForCreateFlight(CreateFlightCommand flightCommand) {
+        return airportRepository.findByCode(flightCommand.getArrivalAirportCode())
+                .orElseThrow(() -> new IllegalArgumentException("Arrival Airport not found"));
+    }
+
+    private AirportEntity getDepartureAirportForCreateFlight(CreateFlightCommand flightCommand) {
+        return airportRepository.findByCode(flightCommand.getDepartureAirportCode())
+                .orElseThrow(() -> new IllegalArgumentException("Departure Airport not found"));
+    }
+
+    private AirlineEntity getAirlineForCreateFlight(CreateFlightCommand flightCommand) {
+        return airlineRepository.findByCode(flightCommand.getAirlineCode())
+                .orElseThrow(() -> new IllegalArgumentException("Airline not found"));
+    }
+
+    private FlightEntity getFlightById(UUID flightId) {
+        return flightRepository.findById(flightId)
+                .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
+    }
+
+    private void validateUserRole(String userRole) {
+        if(userRole.equals("CUSTOMER")) {
+            throw new IllegalArgumentException("Access denied");
+        }
     }
 }

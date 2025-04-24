@@ -23,14 +23,17 @@ public class AirlineService {
     private final AirlineRepository airlineRepository;
 
     @Cacheable(value = "airlines", key = "#airlineId")
-    public AirlineResponse getAirline(UUID airlineId) {
-        AirlineEntity airline = airlineRepository.findById(airlineId)
-                .orElseThrow(() -> new IllegalArgumentException("Airline not found"));
+    public AirlineResponse getAirline(UUID airlineId, String userRole) {
+        validateUserRole(userRole);
+
+        AirlineEntity airline = getAirlineById(airlineId);
 
         return AirlineResponse.from(airline);
     }
 
-    public Page<AirlineResponse> searchAirlines(String code, String name, Pageable pageable) {
+    public Page<AirlineResponse> searchAirlines(String code, String name, Pageable pageable, String userRole) {
+        validateUserRole(userRole);
+
         Pageable adjusted = PagingUtil.adjustPageable(pageable);
         Page<AirlineEntity> airlines = airlineRepository.findByCodeAndName(code, name, adjusted);
 
@@ -39,44 +42,64 @@ public class AirlineService {
 
     @Transactional
     @CacheEvict(value = "airlines", allEntries = true) // 캐시 무효화
-    public AirlineResponse createAirline(CreateAirlineCommand airlineCommand) {
+    public AirlineResponse createAirline(CreateAirlineCommand airlineCommand, UUID userId, String userRole) {
+        validateUserRole(userRole);
 
-        if (airlineRepository.findByCode(airlineCommand.getCode()).isPresent()) {
-            throw new IllegalArgumentException("Airline code " + airlineCommand.getCode() + " already exists");
-        }
+        getAirlineByCode(airlineCommand);
+
         AirlineEntity airline = AirlineEntity.from(
                 airlineCommand.getCode(),
                 airlineCommand.getName()
         );
+
         airlineRepository.save(airline);
+        airline.updateCreationInfo(userId);
 
         return AirlineResponse.from(airline);
     }
 
     @Transactional
     @CacheEvict(value = "airlines", allEntries = true) // 캐시 무효화
-    public AirlineResponse updateAirline(UpdateAirlineCommand airlineCommand) {
+    public AirlineResponse updateAirline(UpdateAirlineCommand airlineCommand, UUID userId, String userRole) {
+        validateUserRole(userRole);
 
-        AirlineEntity airline = airlineRepository.findById(airlineCommand.getAirlineId())
-                .orElseThrow(() -> new IllegalArgumentException("Airline not found"));
+        AirlineEntity airline = getAirlineById(airlineCommand.getAirlineId());
 
         airline.updateOf(
                 airlineCommand.getCode(),
                 airlineCommand.getName()
         );
 
-//        airline.updateModificationInfo();
+        airline.updateModificationInfo(userId);
 
         return AirlineResponse.from(airline);
     }
 
     @Transactional
     @CacheEvict(value = "airlines", allEntries = true) // 캐시 무효화
-    public void deleteAirline(UUID airlineId) {
+    public void deleteAirline(UUID airlineId, UUID userId, String userRole) {
+        validateUserRole(userRole);
 
+        AirlineEntity airline = getAirlineById(airlineId);
+
+        airline.updateDeletionInfo(userId);
+    }
+
+    private AirlineEntity getAirlineById(UUID airlineId) {
         AirlineEntity airline = airlineRepository.findById(airlineId)
                 .orElseThrow(() -> new IllegalArgumentException("Airline not found"));
+        return airline;
+    }
 
-//        airline.updateDeletionInfo();
+    private void getAirlineByCode(CreateAirlineCommand airlineCommand) {
+        if (airlineRepository.findByCode(airlineCommand.getCode()).isPresent()) {
+            throw new IllegalArgumentException("Airline code " + airlineCommand.getCode() + " already exists");
+        }
+    }
+
+    private void validateUserRole(String userRole) {
+        if(userRole.equals("CUSTOMER")){
+            throw new IllegalArgumentException("Access denied");
+        }
     }
 }
