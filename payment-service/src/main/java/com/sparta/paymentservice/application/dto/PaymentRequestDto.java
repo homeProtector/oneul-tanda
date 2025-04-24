@@ -11,6 +11,5 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PaymentRequestDto {
     private UUID reservationId;
-    private UUID userId;
-    private Integer amount;
+    private Integer totalPrice;
 }
