@@ -18,7 +18,7 @@ public class JpaAuditorAware implements AuditorAware<String> {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         if (requestAttributes instanceof ServletRequestAttributes servletRequestAttributes) {
             HttpServletRequest request = servletRequestAttributes.getRequest();
-            String userId = request.getHeader("X-UserId");
+            String userId = request.getHeader("X-User-Id");
 
             return Optional.ofNullable(userId);
         } else {

@@ -23,7 +23,9 @@ public class AirlineExternalService {
     private final AirlineRepository airlineRepository;
 
     // 실시간 항공사 정보 조회
-    public List<AirlineSearchResponse> searchAirlines(String keyword) throws Exception {
+    public List<AirlineSearchResponse> searchAirlines(String keyword, String userRole) throws Exception {
+        validateUserRole(userRole);
+
         Airline[] amadeusAirlines = amadeus.referenceData.airlines
                 .get(Params.with("airlineCodes", keyword));
 
@@ -35,7 +37,9 @@ public class AirlineExternalService {
     }
 
     // 실시간 항공사 정보 조회 및 DB 저장
-    public List<AirlineResponse> searchAndSaveAirlines(String keyword) throws Exception {
+    public List<AirlineResponse> searchAndSaveAirlines(String keyword, String userRole) throws Exception {
+        validateUserRole(userRole);
+
         Airline[] amadeusAirlines = amadeus.referenceData.airlines
                 .get(Params.with("airlineCodes", keyword));
 
@@ -56,4 +60,9 @@ public class AirlineExternalService {
                 .toList();
     }
 
+    private void validateUserRole(String userRole) {
+        if(userRole.equals("CUSTOMER")) {
+            throw new IllegalArgumentException("Access denied");
+        }
+    }
 }

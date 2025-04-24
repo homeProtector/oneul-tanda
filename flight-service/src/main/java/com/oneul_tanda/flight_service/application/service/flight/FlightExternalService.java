@@ -35,36 +35,38 @@ public class FlightExternalService {
     private final AirportRepository airportRepository;
 
     // 실시간 항공편 정보 조회
-    @Cacheable(value = "flightOffers", key = "#departureAirportCode + '#' + #arrivalAirportCode + '#' + #departureDate.toLocalDate().toString() + '#' + #requiredSeats")
+    @Cacheable(value = "flightOffers",
+            key = "#departureAirportCode + '#' + #arrivalAirportCode + '#' + #departureDate.toLocalDate().toString() + '#' + #requiredSeats")
     public List<FlightResponse> searchFlights(String departureAirportCode, String arrivalAirportCode,
-                                              LocalDateTime departureDate, Integer requiredSeats) throws Exception {
+                                              LocalDateTime departureDate, Integer requiredSeats, String userRole) throws Exception {
+        validateUserRole(userRole);
+        // 과거 날짜 검증
+        checkDepartureDateInPast(departureDate);
+
         validateInputs(departureDate, requiredSeats);
+
         FlightOfferSearch[] offers = fetchFlightOffers(departureAirportCode, arrivalAirportCode,
                 departureDate.toLocalDate().toString(), requiredSeats);
         return extractFlightResponses(offers, false);
     }
 
-    @Cacheable(value = "flightOffers", key = "#departureAirportCode + '#' + #arrivalAirportCode + '#' + #departureDate.toLocalDate().toString() + '#' + #requiredSeats")
+    @Cacheable(value = "flightOffers",
+            key = "#departureAirportCode + '#' + #arrivalAirportCode + '#' + #departureDate.toLocalDate().toString() + '#' + #requiredSeats")
     public List<FlightResponse> searchAndSaveFlights(String departureAirportCode, String arrivalAirportCode,
-                                                     LocalDateTime departureDate, Integer requiredSeats)
-            throws Exception {
+                                                     LocalDateTime departureDate, Integer requiredSeats) throws Exception {
+        // 과거 날짜 검증
+        checkDepartureDateInPast(departureDate);
+
         validateInputs(departureDate, requiredSeats);
+
         FlightOfferSearch[] offers = fetchFlightOffers(departureAirportCode, arrivalAirportCode,
                 departureDate.toLocalDate().toString(), requiredSeats);
         return extractFlightResponses(offers, true);
     }
 
-    private void validateInputs(LocalDateTime departureDate, Integer requiredSeats) {
-        if (departureDate == null) {
-            throw new IllegalArgumentException("departureDate is required");
-        }
-        if (requiredSeats == null || requiredSeats <= 0) {
-            requiredSeats = 1;
-        }
-    }
-
     private FlightOfferSearch[] fetchFlightOffers(String departureAirportCode, String arrivalAirportCode,
                                                   String departureDate, Integer requiredSeats) throws Exception {
+
         return amadeus.shopping.flightOffersSearch.get(
                 Params.with("originLocationCode", departureAirportCode)
                         .and("destinationLocationCode", arrivalAirportCode)
@@ -74,7 +76,9 @@ public class FlightExternalService {
                         .and("max", 10));
     }
 
-    private List<FlightResponse> extractFlightResponses(FlightOfferSearch[] offers, boolean saveToDb) {
+    private List<FlightResponse> extractFlightResponses(
+            FlightOfferSearch[] offers, boolean saveToDb
+    ) {
         if (offers == null) {
             return new ArrayList<>();
         }
@@ -123,31 +127,75 @@ public class FlightExternalService {
         return flights;
     }
 
-    private FlightEntity saveOrUpdateFlight(String flightNum, String carrierCode, String departureAirportCode,
-                                            String arrivalAirportCode, LocalDateTime departureTime,
-                                            LocalDateTime arrivalTime, BigDecimal price, Integer remainingSeats) {
-        AirlineEntity airline = airlineRepository.findByCode(carrierCode)
-                .orElseGet(() -> airlineRepository.save(AirlineEntity.from(carrierCode, "Unknown Airline")));
+    private FlightEntity saveOrUpdateFlight(
+            String flightNum, String carrierCode, String departureAirportCode,
+            String arrivalAirportCode, LocalDateTime departureTime,
+            LocalDateTime arrivalTime, BigDecimal price, Integer remainingSeats
+    ) {
+        AirlineEntity airline = getAirlineByCode(carrierCode);
 
-        Optional<FlightEntity> existing = flightRepository.findByFlightNumAndDepartureDateAndArrivalDate(
-                flightNum, departureTime, arrivalTime);
+        Optional<FlightEntity> existingFlight = getExistingFlight(flightNum, departureTime, arrivalTime);
+
         FlightEntity flight;
-        if (existing.isEmpty()) {
-            AirportEntity departureAirport = airportRepository.findByCode(departureAirportCode)
-                    .orElseThrow(() -> new IllegalArgumentException(
-                            "Invalid departure airport code: " + departureAirportCode));
-            AirportEntity arrivalAirport = airportRepository.findByCode(arrivalAirportCode)
-                    .orElseThrow(
-                            () -> new IllegalArgumentException("Invalid arrival airport code: " + arrivalAirportCode));
+
+        if (existingFlight.isEmpty()) {
+            AirportEntity departureAirport = getDepartureAirport(departureAirportCode);
+            AirportEntity arrivalAirport = getArrivalAirport(arrivalAirportCode);
 
             flight = FlightEntity.from(
                     flightNum, airline, departureAirport, arrivalAirport,
                     departureTime, arrivalTime, Duration.between(departureTime, arrivalTime),
                     price, remainingSeats);
         } else {
-            flight = existing.get();
+            flight = existingFlight.get();
             flight.updateFromOffer(price, remainingSeats);
         }
         return flightRepository.save(flight);
+    }
+
+    private Optional<FlightEntity> getExistingFlight(String flightNum, LocalDateTime departureTime,
+                                                   LocalDateTime arrivalTime) {
+        return flightRepository.findByFlightNumAndDepartureDateAndArrivalDate(
+                flightNum, departureTime, arrivalTime);
+    }
+
+    private AirlineEntity getAirlineByCode(String carrierCode) {
+        return airlineRepository.findByCode(carrierCode)
+                .orElseGet(() -> airlineRepository.save(AirlineEntity.from(carrierCode, "Unknown Airline")));
+    }
+
+    private AirportEntity getArrivalAirport(String arrivalAirportCode) {
+        return airportRepository.findByCode(arrivalAirportCode)
+                .orElseThrow(
+                        () -> new IllegalArgumentException("Invalid arrival airport code: " + arrivalAirportCode));
+    }
+
+    private AirportEntity getDepartureAirport(String departureAirportCode) {
+        return airportRepository.findByCode(departureAirportCode)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Invalid departure airport code: " + departureAirportCode));
+    }
+
+    private void checkDepartureDateInPast(LocalDateTime departureDate) {
+        LocalDateTime now = LocalDateTime.now();
+        if (departureDate.toLocalDate().isBefore(now.toLocalDate())) {
+            log.warn("Requested departureDate {} is in the past", departureDate);
+            throw new IllegalArgumentException("departureDate cannot be in the past");
+        }
+    }
+
+    private void validateUserRole(String userRole) {
+        if(userRole.equals("CUSTOMER")) {
+            throw new IllegalArgumentException("Access denied");
+        }
+    }
+
+    private void validateInputs(LocalDateTime departureDate, Integer requiredSeats) {
+        if (departureDate == null) {
+            throw new IllegalArgumentException("departureDate is required");
+        }
+        if (requiredSeats == null || requiredSeats <= 0) {
+            requiredSeats = 1;
+        }
     }
 }

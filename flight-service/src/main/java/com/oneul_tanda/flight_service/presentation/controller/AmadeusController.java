@@ -19,6 +19,7 @@ import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,9 +36,12 @@ public class AmadeusController {
 
     // 실시간 공항 정보 조회용
     @GetMapping("/airports/live-search")
-    public ResponseEntity<List<AirportSearchResponse>> searchAirports(@RequestParam String keyword) {
+    public ResponseEntity<List<AirportSearchResponse>> searchAirports(
+            @RequestParam String keyword,
+            @RequestHeader ("X-User-Role") String userRole
+    ) {
         try {
-            Location[] locations = airportExternalService.searchAirports(keyword);
+            Location[] locations = airportExternalService.searchAirports(keyword, userRole);
             List<AirportSearchResponse> response = Arrays.stream(locations)
                     .map(AirportSearchResponse::from)
                     .toList();
@@ -50,9 +54,12 @@ public class AmadeusController {
 
     // 실시간 공항 정보 조회 및 DB 저장용
     @PostMapping("/airports/fetch-and-save")
-    public ResponseEntity<List<AirportResponse>> searchAndSaveAirports(@RequestParam String keyword) {
+    public ResponseEntity<List<AirportResponse>> searchAndSaveAirports(
+            @RequestParam String keyword,
+            @RequestHeader ("X-User-Role") String userRole
+    ) {
         try {
-            return ResponseEntity.ok(airportExternalService.searchAndSaveAirports(keyword));
+            return ResponseEntity.ok(airportExternalService.searchAndSaveAirports(keyword, userRole));
         } catch (Exception e) {
             log.error("Error fetching and saving airports: {}", e.getMessage());
             return ResponseEntity.internalServerError().build();
@@ -61,9 +68,12 @@ public class AmadeusController {
 
     // 실시간 항공사 정보 조회용
     @GetMapping("/airlines/live-search")
-    public ResponseEntity<List<AirlineSearchResponse>> searchAirlines(@RequestParam String keyword) {
+    public ResponseEntity<List<AirlineSearchResponse>> searchAirlines(
+            @RequestParam String keyword,
+            @RequestHeader ("X-User-Role") String userRole
+    ) {
         try {
-            List<AirlineSearchResponse> airlineResponses = airlineExternalService.searchAirlines(keyword);
+            List<AirlineSearchResponse> airlineResponses = airlineExternalService.searchAirlines(keyword, userRole);
             return ResponseEntity.ok(airlineResponses);
         } catch (Exception e) {
             log.error("Error while fetching airlines", e);
@@ -73,9 +83,12 @@ public class AmadeusController {
 
     // 실시간 항공사 정보 조회 및 DB 저장용
     @PostMapping("/airlines/fetch-and-save")
-    public ResponseEntity<List<AirlineResponse>> searchAndSaveAirlines(@RequestParam String keyword) {
+    public ResponseEntity<List<AirlineResponse>> searchAndSaveAirlines(
+            @RequestParam String keyword,
+            @RequestHeader ("X-User-Role") String userRole
+    ) {
         try {
-            return ResponseEntity.ok(airlineExternalService.searchAndSaveAirlines(keyword));
+            return ResponseEntity.ok(airlineExternalService.searchAndSaveAirlines(keyword, userRole));
         } catch (Exception e) {
             log.error("Error fetching and saving airlines: {}", e.getMessage());
             return ResponseEntity.internalServerError().build();
@@ -88,11 +101,12 @@ public class AmadeusController {
             @RequestParam String departureAirportCode,
             @RequestParam String arrivalAirportCode,
             @RequestParam @DateTimeFormat(iso = ISO.DATE_TIME) LocalDateTime departureDate,
-            @RequestParam Integer requiredSeats
+            @RequestParam Integer requiredSeats,
+            @RequestHeader ("X-User-Role") String userRole
     ) {
         try {
             List<FlightResponse> flightResponses = flightExternalService.searchFlights(
-                    departureAirportCode, arrivalAirportCode, departureDate, requiredSeats);
+                    departureAirportCode, arrivalAirportCode, departureDate, requiredSeats, userRole);
             return ResponseEntity.ok(flightResponses);
         } catch (Exception e) {
             log.error("Error while searching flights", e);
@@ -109,12 +123,6 @@ public class AmadeusController {
             @RequestParam Integer requiredSeats
     ) {
         try {
-            // 과거 날짜 검증
-            LocalDateTime now = LocalDateTime.now();
-            if (departureDate.toLocalDate().isBefore(now.toLocalDate())) {
-                log.warn("Requested departureDate {} is in the past", departureDate);
-                return ResponseEntity.badRequest().body(List.of());
-            }
             List<FlightResponse> response = flightExternalService.searchAndSaveFlights(
                     departureAirportCode, arrivalAirportCode, departureDate, requiredSeats);
             return ResponseEntity.ok(response);

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,9 +33,10 @@ public class AirlineController {
 
     @GetMapping("/{airlineId}")
     public ResponseEntity<AirlineResponse> getAirline(
-            @PathVariable UUID airlineId
+            @PathVariable UUID airlineId,
+            @RequestHeader("X-User-Role") String userRole
     ) {
-        AirlineResponse response = airlineService.getAirline(airlineId);
+        AirlineResponse response = airlineService.getAirline(airlineId, userRole);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -42,32 +44,41 @@ public class AirlineController {
     public ResponseEntity<Page<AirlineResponse>> searchAirlines(
             @RequestParam(required = false) String code,
             @RequestParam(required = false) String name,
-            @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC) Pageable pageable
+            @PageableDefault(size = 10, sort = "createdAt", direction = Direction.DESC) Pageable pageable,
+            @RequestHeader("X-User-Role") String userRole
     ) {
-        Page<AirlineResponse> result = airlineService.searchAirlines(code, name, pageable);
+        Page<AirlineResponse> result = airlineService.searchAirlines(code, name, pageable, userRole);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @PostMapping
-    public ResponseEntity<AirlineResponse> createAirline(@RequestBody @Valid CreateAirlineRequest request) {
-        AirlineResponse response = airlineService.createAirline(request.toCommand());
+    public ResponseEntity<AirlineResponse> createAirline(
+            @RequestBody @Valid CreateAirlineRequest request,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole
+    ) {
+        AirlineResponse response = airlineService.createAirline(request.toCommand(), userId, userRole);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{airlineId}")
     public ResponseEntity<AirlineResponse> updateAirline(
             @PathVariable UUID airlineId,
-            @RequestBody @Valid UpdateAirlineRequest request
+            @RequestBody @Valid UpdateAirlineRequest request,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole
     ) {
-        AirlineResponse response = airlineService.updateAirline(request.toCommand(airlineId));
+        AirlineResponse response = airlineService.updateAirline(request.toCommand(airlineId), userId, userRole);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{airlineId}")
     public ResponseEntity<Void> deleteAirline(
-            @PathVariable UUID airlineId
+            @PathVariable UUID airlineId,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole
     ) {
-        airlineService.deleteAirline(airlineId);
+        airlineService.deleteAirline(airlineId, userId, userRole);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

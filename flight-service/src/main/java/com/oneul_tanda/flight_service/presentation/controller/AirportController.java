@@ -1,9 +1,9 @@
 package com.oneul_tanda.flight_service.presentation.controller;
 
-import com.oneul_tanda.flight_service.presentation.dtos.airport.UpdateAirportRequest;
 import com.oneul_tanda.flight_service.application.service.airport.AirportService;
-import com.oneul_tanda.flight_service.presentation.dtos.airport.CreateAirportRequest;
 import com.oneul_tanda.flight_service.presentation.dtos.airport.AirportResponse;
+import com.oneul_tanda.flight_service.presentation.dtos.airport.CreateAirportRequest;
+import com.oneul_tanda.flight_service.presentation.dtos.airport.UpdateAirportRequest;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,43 +32,51 @@ public class AirportController {
 
     @GetMapping("/{airportId}")
     public ResponseEntity<AirportResponse> getAirport(
-            @PathVariable UUID airportId
+            @PathVariable UUID airportId,
+            @RequestHeader("X-User-Role") String userRole
     ) {
-        AirportResponse response = airportService.getAirport(airportId);
+        AirportResponse response = airportService.getAirport(airportId, userRole);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/search")
     public ResponseEntity<Page<AirportResponse>> searchAirports(
             @RequestParam(required = false, defaultValue = "") String keyword,
-            @PageableDefault Pageable pageable
+            @PageableDefault Pageable pageable,
+            @RequestHeader("X-User-Role") String userRole
     ) {
-        Page<AirportResponse> result = airportService.searchAirports(keyword, pageable);
+        Page<AirportResponse> result = airportService.searchAirports(keyword, pageable, userRole);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @PostMapping
     public ResponseEntity<AirportResponse> createAirport(
-            @RequestBody @Valid CreateAirportRequest request
+            @RequestBody @Valid CreateAirportRequest request,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole
     ) {
-        AirportResponse response = airportService.createAirport(request.toCommand());
+        AirportResponse response = airportService.createAirport(request.toCommand(), userId, userRole);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{airportId}")
     public ResponseEntity<AirportResponse> updateAirport(
             @PathVariable UUID airportId,
-            @RequestBody @Valid UpdateAirportRequest request
+            @RequestBody @Valid UpdateAirportRequest request,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole
     ) {
-        AirportResponse response = airportService.updateAirport(request.toCommand(airportId));
+        AirportResponse response = airportService.updateAirport(request.toCommand(airportId), userId, userRole);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @DeleteMapping("/{airportId}")
     public ResponseEntity<Void> deleteAirport(
-            @PathVariable UUID airportId
+            @PathVariable UUID airportId,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader("X-User-Role") String userRole
     ) {
-        airportService.deleteAirport(airportId);
+        airportService.deleteAirport(airportId, userId, userRole);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

@@ -1,11 +1,11 @@
 package com.oneul_tanda.flight_service.application.service.airport;
 
 import com.oneul_tanda.flight_service.application.dtos.airport.CreateAirportCommand;
-import com.oneul_tanda.flight_service.domain.entity.AirportEntity;
-import com.oneul_tanda.flight_service.presentation.dtos.airport.AirportResponse;
 import com.oneul_tanda.flight_service.application.dtos.airport.UpdateAirportCommand;
+import com.oneul_tanda.flight_service.domain.entity.AirportEntity;
 import com.oneul_tanda.flight_service.domain.repository.airport.AirportRepository;
 import com.oneul_tanda.flight_service.domain.repository.airport.AirportRepositoryCustom;
+import com.oneul_tanda.flight_service.presentation.dtos.airport.AirportResponse;
 import com.oneul_tanda.flight_service.util.PagingUtil;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -25,15 +25,17 @@ public class AirportService {
     private final AirportRepositoryCustom airportRepositoryCustom;
 
     @Cacheable(value = "airports", key = "#airportId")
-    public AirportResponse getAirport(UUID airportId) {
+    public AirportResponse getAirport(UUID airportId, String userRole) {
+        validateUserRole(userRole);
 
-        AirportEntity airport = airportRepository.findById(airportId)
-                .orElseThrow(() -> new IllegalArgumentException("Airport not found"));
+        AirportEntity airport = getAirportById(airportId);
 
         return AirportResponse.from(airport);
     }
 
-    public Page<AirportResponse> searchAirports(String keyword, Pageable pageable) {
+    public Page<AirportResponse> searchAirports(String keyword, Pageable pageable, String userRole) {
+        validateUserRole(userRole);
+
         Pageable adjusted = PagingUtil.adjustPageable(pageable);
         Page<AirportEntity> airports = airportRepositoryCustom.searchByKeyword(keyword, adjusted);
 
@@ -42,11 +44,10 @@ public class AirportService {
 
     @Transactional
     @CacheEvict(value = "airports", allEntries = true) // 캐시 무효화
-    public AirportResponse createAirport(CreateAirportCommand airportCommand) {
+    public AirportResponse createAirport(CreateAirportCommand airportCommand, UUID userId, String userRole) {
+        validateUserRole(userRole);
 
-        if (airportRepository.findByCode(airportCommand.getCode()).isPresent()) {
-            throw new IllegalArgumentException("Airport code " + airportCommand.getCode() + " already exists");
-        }
+        getAirportByCode(airportCommand);
 
         AirportEntity airport = AirportEntity.from(
                 airportCommand.getCode(),
@@ -56,16 +57,17 @@ public class AirportService {
         );
 
         airportRepository.save(airport);
+        airport.updateCreationInfo(userId);
 
         return AirportResponse.from(airport);
     }
 
     @Transactional
     @CacheEvict(value = "airports", allEntries = true) // 캐시 무효화
-    public AirportResponse updateAirport(UpdateAirportCommand airportCommand) {
+    public AirportResponse updateAirport(UpdateAirportCommand airportCommand, UUID userId, String userRole) {
+        validateUserRole(userRole);
 
-        AirportEntity airport = airportRepository.findById(airportCommand.getAirportId())
-                .orElseThrow(() -> new IllegalArgumentException("Airport not found"));
+        AirportEntity airport = getAirportById(airportCommand.getAirportId());
 
         airport.updateOf(
                 airportCommand.getCode(),
@@ -74,18 +76,35 @@ public class AirportService {
                 airportCommand.getCountry()
         );
 
-//        airport.updateModificationInfo();
+        airport.updateModificationInfo(userId);
 
         return AirportResponse.from(airport);
     }
 
     @Transactional
     @CacheEvict(value = "airports", allEntries = true) // 캐시 무효화
-    public void deleteAirport(UUID airportId) {
+    public void deleteAirport(UUID airportId, UUID userId, String userRole) {
+        validateUserRole(userRole);
 
-        AirportEntity airport = airportRepository.findById(airportId)
+        AirportEntity airport = getAirportById(airportId);
+
+        airport.updateDeletionInfo(userId);
+    }
+
+    private void getAirportByCode(CreateAirportCommand airportCommand) {
+        if (airportRepository.findByCode(airportCommand.getCode()).isPresent()) {
+            throw new IllegalArgumentException("Airport code " + airportCommand.getCode() + " already exists");
+        }
+    }
+
+    private AirportEntity getAirportById(UUID airportId) {
+        return airportRepository.findById(airportId)
                 .orElseThrow(() -> new IllegalArgumentException("Airport not found"));
+    }
 
-//        airport.updateDeletionInfo();
+    private void validateUserRole(String userRole) {
+        if (userRole.equals("CUSTOMER")) {
+            throw new IllegalArgumentException("Access denied");
+        }
     }
 }
