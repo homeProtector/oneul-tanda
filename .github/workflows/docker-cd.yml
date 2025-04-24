@@ -37,6 +37,10 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.INSTANCE_IP }} >> ~/.ssh/known_hosts
 
+      - name: Make sure remote directory exists
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.INSTANCE_IP }} "mkdir -p /home/${{ secrets.SSH_USER }}/app"
+
       - name: Send docker-compose files and .env
         run: |
           scp ./docker-compose-server.yml ${{ secrets.SSH_USER }}@${{ secrets.INSTANCE_IP }}:/home/ubuntu/app/
