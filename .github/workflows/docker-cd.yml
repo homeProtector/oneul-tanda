@@ -2,7 +2,8 @@ name: Deploy to OCI via SSH
 
 on:
   push:
-    branches: [ Ci/#91-cicd-gitaction ]
+    branches:
+    - Ci/#91-cicd-gitaction
 
 jobs:
   deploy:
@@ -49,9 +50,8 @@ jobs:
       - name: Run docker compose on server
         run: |
           ssh -tt ${{ secrets.SSH_USER }}@${{ secrets.INSTANCE_IP }} "
-            cd /home/ubuntu/app &&
-            docker compose pull &&
-            docker compose down &&
-            docker compose up -d
+          cd /home/${{ secrets.SSH_USER }}/app &&
+          docker-compose pull &&
+          docker-compose down &&
+          docker-compose up -d
           "
-      
