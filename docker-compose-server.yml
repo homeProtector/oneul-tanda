@@ -1,0 +1,193 @@
+services:
+  eureka-server:
+    image: duckori/eureka-server:latest
+    container_name: oneultanda-eureka-server
+    ports:
+      - "19090:19090"
+
+  gateway:
+    image: duckori/gateway-service:latest
+    ports:
+      - "19091:19091"
+    env_file:
+      - .env
+    environment:
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+    depends_on:
+      - eureka-server
+      - kafka
+      - redis
+
+  user-service:
+    image: duckori/user-service:latest
+    container_name: oneultanda-user-service
+    volumes:
+      - ./user-service:/app/user-service
+    ports:
+      - "19092:19092"
+    env_file:
+      - .env
+    environment:
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+    depends_on:
+      - user-db
+      - eureka-server
+      - gateway
+      - redis
+
+  user-db:
+    image: mysql:8.0
+    container_name: oneultanda-user-db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${USER_DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=user_db
+      - MYSQL_USER=${USER_DB_ID}
+      - MYSQL_PASSWORD=${USER_DB_PASSWORD}
+    ports:
+      - "3309:3306"
+    #todo: 추후에 port 확인, 변경 필요
+    volumes:
+      - user-mysql-data:/var/lib/mysql
+
+  flight-service:
+    image: duckori/flight-service:latest
+    container_name: oneultanda-flight-service
+    volumes:
+      - ./flight-service:/app/flight-service
+    ports:
+      - "19094:19094"
+    env_file:
+      - .env
+    environment:
+      - AMADEUS_CLIENT_ID=${AMADEUS_CLIENT_ID}
+      - AMADEUS_CLIENT_SECRET=${AMADEUS_CLIENT_SECRET}
+    depends_on:
+      - flight-db
+      - redis
+      - eureka-server
+
+  flight-db:
+    image: postgres:16.3
+    container_name: oneultanda-flight-db
+    environment:
+      - POSTGRES_USER=${FLIGHT_DB_ID}
+      - POSTGRES_DB=flight_db
+      - POSTGRES_PASSWORD=${FLIGHT_DB_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - flight-postgres-data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+
+  reservation-service:
+    image: duckori/reservation-service:latest
+    container_name: oneultanda-reservation-service
+    volumes:
+      - ./reservation-service:/app/reservation-service
+    ports:
+      - "19095:19095"
+    env_file:
+      - .env
+    depends_on:
+      - reservation-db
+      - kafka
+      - eureka-server
+
+  reservation-db:
+    image: mysql:8.0
+    container_name: oneultanda-reservation-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=${RESERVATION_DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=reservation_db
+      - MYSQL_USER=${RESERVATION_DB_ID}
+      - MYSQL_PASSWORD=${RESERVATION_DB_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - reservation-mysql-data:/var/lib/mysql
+
+  queue-service:
+    image: duckori/queue-service:latest
+    container_name: oneultanda-queue-service
+    volumes:
+      - ./queue-service:/app/queue-service
+    ports:
+      - "19096:19096"
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - kafka
+      - eureka-server
+
+  redis:
+    image: redis:latest
+    container_name: oneultanda-redis
+    ports:
+      - "6379:6379"
+    restart: always
+
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    platform: linux/amd64
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    platform: linux/amd64
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:29092,OUTSIDE://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    platform: linux/amd64
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+      KAFKA_CLUSTERS_0_READONLY: "false"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+volumes:
+  user-mysql-data:
+  reservation-mysql-data:
+  flight-postgres-data:
+  prometheus_data:
+  grafana-storage:
