@@ -23,13 +23,13 @@ public interface FlightFeignClient {
     /**
      * 좌석 차감
      */
-    @PutMapping("/api/v1/flights/{flightId}/seats/decrease")
+    @PutMapping("/internal/v1/flights/{flightId}/seats/decrease")
     ResponseEntity<Void> decreaseSeats(@PathVariable UUID flightId, @RequestParam Integer requiredSeats);
 
 
     /**
      * 좌석 복구
      */
-    @PutMapping("/api/v1/flights/{flightId}/seats/increase")
+    @PutMapping("/internal/v1/flights/{flightId}/seats/increase")
     ResponseEntity<Void> increaseSeats(@PathVariable UUID flightId, @RequestParam Integer requiredSeats);
 }

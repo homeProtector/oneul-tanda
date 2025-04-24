@@ -15,6 +15,6 @@ public interface FlightClient {
     FlightResponse getFlight(@PathVariable UUID flightId);
 
     // 대기열 선점 성공시 좌석 수 차감 로직 api
-    @PutMapping("/api/v1/flights/{flightId}/seats/decrease")
+    @PutMapping("/internal/v1/flights/{flightId}/seats/decrease")
     void decreaseSeats(@PathVariable UUID flightId, @RequestParam Integer requiredSeats);
 }
