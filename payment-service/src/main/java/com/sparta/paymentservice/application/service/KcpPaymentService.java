@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ImPortPaymentService implements PaymentService {
+public class KcpPaymentService implements PaymentService {
     private final IamportClient iamportClient;
     private final PaymentRepository paymentRepository;
 
