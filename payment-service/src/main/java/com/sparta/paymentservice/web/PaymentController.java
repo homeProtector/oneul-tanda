@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class PaymentController {
     private final KcpPaymentService kcpPaymentService;
 
-    @PostMapping("/test")
+    @PostMapping("/confirm")
     public ResponseEntity<PaymentResponseDto> confirmPayment(@RequestBody PaymentRequestDto request) {
         CardInfo card = TestCardInfo.testCard1();
         PaymentResponseDto response = kcpPaymentService.confirmPayment(request, card);
