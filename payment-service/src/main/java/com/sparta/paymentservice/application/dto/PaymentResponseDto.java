@@ -28,11 +28,4 @@ public class PaymentResponseDto {
                 .status(payment.getStatus())
                 .build();
     }
-    public Payments toEntity() {
-        return Payments.create(
-                this.reservationId,
-                this.totalPrice,
-                this.status
-        );
-    }
 }
