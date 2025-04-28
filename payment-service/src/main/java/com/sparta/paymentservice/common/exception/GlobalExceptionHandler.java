@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(
                 ErrorResponse.from(e.getErrorCode()),
-                HttpStatus.CONFLICT);
+                e.getErrorCode().getStatus());
     }
 
     @ExceptionHandler(IOException.class)
