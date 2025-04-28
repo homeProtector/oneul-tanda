@@ -10,7 +10,7 @@ import com.siot.IamportRestClient.response.Payment;
 import com.sparta.paymentservice.application.dto.PaymentRequestDto;
 import com.sparta.paymentservice.application.dto.PaymentResponseDto;
 import com.sparta.paymentservice.common.exception.ErrorCode;
-import com.sparta.paymentservice.common.exception.ImportException;
+import com.sparta.paymentservice.common.exception.IamPortException;
 import com.sparta.paymentservice.common.exception.PaymentException;
 import com.sparta.paymentservice.domain.entity.Payments;
 import com.sparta.paymentservice.domain.repository.PaymentRepository;
@@ -45,7 +45,7 @@ public class KcpPaymentService implements PaymentService {
             IamportResponse<Payment> response = iamportClient.onetimePayment(onetimePaymentData);
 
             if (response.getCode() != 0 || response.getResponse() == null) {
-                throw new ImportException(response.getCode(), response.getMessage());
+                throw new IamPortException(response.getCode(), response.getMessage());
             }
 
             Payment payment = response.getResponse();
@@ -57,7 +57,7 @@ public class KcpPaymentService implements PaymentService {
             return responseDto;
 
         } catch (IamportResponseException e) {
-            throw new ImportException(e.getHttpStatusCode(), "결제 응답 오류: " +  e.getMessage());
+            throw new IamPortException(e.getHttpStatusCode(), "결제 응답 오류: " +  e.getMessage());
         } catch (IOException e) {
             throw new PaymentException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
