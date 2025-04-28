@@ -5,11 +5,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ImportErrorResponse {
+public class IamPortErrorResponse {
     private int errorCode;
     private String message;
 
-    public static ImportErrorResponse from(int errorCode, String message) {
-        return new ImportErrorResponse(errorCode, message);
+    public static IamPortErrorResponse from(int errorCode, String message) {
+        return new IamPortErrorResponse(errorCode, message);
     }
 }
