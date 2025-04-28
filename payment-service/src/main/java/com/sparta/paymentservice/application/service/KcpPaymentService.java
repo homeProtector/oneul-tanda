@@ -9,6 +9,7 @@ import com.siot.IamportRestClient.response.IamportResponse;
 import com.siot.IamportRestClient.response.Payment;
 import com.sparta.paymentservice.application.dto.PaymentRequestDto;
 import com.sparta.paymentservice.application.dto.PaymentResponseDto;
+import com.sparta.paymentservice.common.exception.PaymentException;
 import com.sparta.paymentservice.domain.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,19 +36,21 @@ public class KcpPaymentService implements PaymentService {
             onetimePaymentData.setPg("kcp");
             // 결제 요청
             IamportResponse<Payment> response = iamportClient.onetimePayment(onetimePaymentData);
-            Payment payment = response.getResponse();
 
-            if(payment == null) {
-              throw new IllegalArgumentException("결제 실패: " + response.getMessage());
+            if (response.getCode() != 0 || response.getResponse() == null) {
+                throw new PaymentException(response.getCode(), response.getMessage());
             }
 
+            Payment payment = response.getResponse();
             PaymentResponseDto responseDto = PaymentResponseDto.toDto(payment);
             // 결제 기록 저장
             paymentRepository.save(responseDto.toEntity());
             return responseDto;
 
-        } catch (IamportResponseException | IOException e) {
-            throw new RuntimeException("결제 처리 중 오류 발생", e);
+        } catch (IamportResponseException e) {
+            throw new PaymentException(e.getHttpStatusCode(), e.getMessage());
+        } catch (IOException e) {
+            throw new PaymentException(500, e.getMessage());
         }
     }
 }
