@@ -2,6 +2,8 @@ server:
   port: 19093
 
 spring:
+  profiles:
+    active: local
   application:
     name: payment-service
 
@@ -15,11 +17,13 @@ spring:
     hibernate:
       ddl-auto: update
 
+
 eureka:
   client:
     service-url:
       defaultZone: http://eureka-server:19090/eureka/
     register-with-eureka: true
+    fetch-registry: true
 
 import:
   api:
