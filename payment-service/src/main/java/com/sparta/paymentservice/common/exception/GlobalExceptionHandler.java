@@ -2,7 +2,7 @@ package com.sparta.paymentservice.common.exception;
 
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.sparta.paymentservice.common.dto.ErrorResponse;
-import com.sparta.paymentservice.common.dto.ImportErrorResponse;
+import com.sparta.paymentservice.common.dto.IamPortErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,19 +14,19 @@ import java.io.IOException;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(ImportException.class)
-    public ResponseEntity<ImportErrorResponse> ImportPaymentExceptionHandler(ImportException e) {
-        log.info("ImportException error: {}", e.getMessage());
+    @ExceptionHandler(IamPortException.class)
+    public ResponseEntity<IamPortErrorResponse> ImportPaymentExceptionHandler(IamPortException e) {
+        log.info("IamPortException error: {}", e.getMessage());
         return new ResponseEntity<>(
-                ImportErrorResponse.from(e.getErrorCode(), e.getMessage()),
+                IamPortErrorResponse.from(e.getErrorCode(), e.getMessage()),
                 HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IamportResponseException.class)
-    public ResponseEntity<ImportErrorResponse> ImportResponseExceptionHandler(IamportResponseException e) {
+    public ResponseEntity<IamPortErrorResponse> ImportResponseExceptionHandler(IamportResponseException e) {
         log.info("ImportResponseException error: {}", e.getMessage());
         return new ResponseEntity<>(
-                ImportErrorResponse.from(e.getHttpStatusCode(), e.getMessage()),
+                IamPortErrorResponse.from(e.getHttpStatusCode(), e.getMessage()),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(
                 ErrorResponse.from(e.getErrorCode()),
-                HttpStatus.CONFLICT);
+                e.getErrorCode().getStatus());
     }
 
     @ExceptionHandler(IOException.class)

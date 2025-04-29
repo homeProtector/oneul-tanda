@@ -20,6 +20,7 @@ public class Payments {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID paymentId;
 
+    @Column(nullable = false)
     private UUID reservationId;
 
     @Column(nullable = false)
@@ -34,5 +35,9 @@ public class Payments {
                 .totalPrice(totalPrice)
                 .status(status)
                 .build();
+    }
+
+    public void updateStatus(String status) {
+        this.status = status;
     }
 }

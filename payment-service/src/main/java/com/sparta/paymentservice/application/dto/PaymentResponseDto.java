@@ -16,23 +16,16 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PaymentResponseDto {
     private UUID reservationId;
-    private String paymentId;
+    private String impUid;
     private BigDecimal totalPrice;
     private String status;
 
-    public static PaymentResponseDto toDto(Payment payment, UUID reservationId) {
+    public static PaymentResponseDto toDto(Payment payment) {
         return PaymentResponseDto.builder()
-                .paymentId(payment.getImpUid())
-                .reservationId(reservationId)
+                .impUid(payment.getImpUid())
+                .reservationId(payment.getMerchantUid())
                 .totalPrice(payment.getAmount())
                 .status(payment.getStatus())
                 .build();
-    }
-    public Payments toEntity() {
-        return Payments.create(
-                this.reservationId,
-                this.totalPrice,
-                this.status
-        );
     }
 }
