@@ -146,7 +146,7 @@ public class QueueService {
     private void setExistReserve(UUID flightId, UUID userId) {
         String key = "reserve:" +  flightId + ":" + userId;
         log.info("중복 예약 방지 키: {}", key);
-        redisTemplate.opsForValue().set(key, "1", Duration.ofMinutes(5));
+        redisTemplate.opsForValue().set(key, "1", Duration.ofSeconds(30));
     }
 
     // 대기열 선점 실패시 sortedSet 과 같이 삭제
