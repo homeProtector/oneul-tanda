@@ -120,7 +120,7 @@ public class ReservationServiceImpl implements ReservationService {
         // 임시 예약 데이터 Redis에 저장
         try {
             String value = objectMapper.writeValueAsString(holdData);
-            redisTemplate.opsForValue().set(key, value, Duration.ofMinutes(5));
+            redisTemplate.opsForValue().set(key, value, Duration.ofMinutes(2));
             log.info("임시 예약 생성 완료: {}", key);
 
         } catch (JsonProcessingException e) {
