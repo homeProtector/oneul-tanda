@@ -25,7 +25,7 @@
 | **리더** | 진강훈       | 예약 대기열 서비스와 결제 서비스 설계 및 구현 |
 | **테크-리더**  | 김승수       |      사용자의 인증, 인가 서비스 설계 및 구현, CI/CD PipeLine 구축 및 배포            |
 | **서브-리더** | 서진영      |        예약 서비스 설계 및 구현 및 모니터링 시각화           |
-| **서서브-리더** | 오연주       |     항공 서비스 설계 및 구현           |
+| **서서브-리더** | 오연주       |     항공 서비스 설계 및 구현, 기획 → 설계 → 개발 전 과정을 문서화하여 팀원 간 원활한 커뮤니케이션과 협업을 유도          |
 
 ## 서비스 구성 및 실행
 <img width="750" alt="image (7)" src="https://github.com/user-attachments/assets/82353c1e-af2b-43e6-b50a-de94097b2303" />
@@ -60,9 +60,9 @@ API 명세서 ☞ [여기로](https://www.notion.so/teamsparta/API-1cb2dc3ef5148
 
 
 ## Trouble Shooting
-대기열 선점중 과도한 항공편 조회 발생 ☞[여기로](https://github.com/homeProtector/oneul-tanda/wiki/1.-대기열-선점-중-과도한-항공편-조회-발생-및-캐시를-통한-DB-부하-완화)
+대기열 선점 중 과도한 항공편 조회 발생 ☞[여기로](https://github.com/homeProtector/oneul-tanda/wiki/1.-대기열-선점-중-과도한-항공편-조회-발생-및-캐시를-통한-DB-부하-완화)
 
-사용자 서비스 개발과정에서 과도한 의존성 ☞[여기로](https://github.com/homeProtector/oneul-tanda/wiki/2.-사용자-서비스-개발과정에서-dsm을-통한-의존성-체크-후-리팩토링-진행)
+사용자 서비스 개발 과정에서 과도한 의존성 ☞[여기로](https://github.com/homeProtector/oneul-tanda/wiki/2.-사용자-서비스-개발과정에서-dsm을-통한-의존성-체크-후-리팩토링-진행)
 
 MySQL 정적 데이터 삽입시 타입 불일치 오류 ☞[여기로](https://github.com/homeProtector/oneul-tanda/wiki/3.-MySQL-정적-데이터-삽입시-타입-불일치-오류)
 
