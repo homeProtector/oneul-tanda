@@ -78,15 +78,21 @@ API 명세서 ☞ [여기로](https://www.notion.so/teamsparta/API-1cb2dc3ef5148
 ### Technologies
 | Java         | Spring boot         | Spring cloud         | JWT         | Spring security        |  kafka |
 |-------------------|-------------------|-------------------|-------------------|-------------------|-------------------|
-|<img src="https://github.com/user-attachments/assets/dc8f8162-2695-4d47-8fcd-a4d395026bdc" width="100" height="100"> | <img src="https://github.com/user-attachments/assets/223e3dc4-ed3d-4aa1-97a1-fe5d90caae6d" width="100" height="100"> | <img src="https://github.com/user-attachments/assets/bf6231b6-6bc2-4741-8e51-dbe928c98670" width="100" height="100">| <img src="https://github.com/user-attachments/assets/f3cae58b-77e4-4813-bb4a-40e6bfb5e26a" width="100" height="100">| <img src="https://github.com/user-attachments/assets/23012343-7981-40b4-9eda-100611a21276" width="100" height="100"> |<img src="" width="100" height="100"> |
+|<img src="https://github.com/user-attachments/assets/dc8f8162-2695-4d47-8fcd-a4d395026bdc" width="100" height="100"> | <img src="https://github.com/user-attachments/assets/223e3dc4-ed3d-4aa1-97a1-fe5d90caae6d" width="100" height="100"> | <img src="https://github.com/user-attachments/assets/bf6231b6-6bc2-4741-8e51-dbe928c98670" width="100" height="100">| <img src="https://github.com/user-attachments/assets/f3cae58b-77e4-4813-bb4a-40e6bfb5e26a" width="100" height="100">| <img src="https://github.com/user-attachments/assets/23012343-7981-40b4-9eda-100611a21276" width="100" height="100"> |<img src="https://github.com/user-attachments/assets/245e0a3d-04ec-408f-8223-3803b7812029" width="100" height="100"> |
 
  |PostgreSQL         | MySQL         | JPA         | QueryDSL         |
  |-------------------|-------------------|-------------------|-------------------|
- |<img src="https://github.com/user-attachments/assets/97fdd97e-09a8-4a34-bcbd-a6f1aaeaf1c1" width="100" height="100"> |<img src="" width="100" height="100"> |<img src="https://github.com/user-attachments/assets/2b9b919e-e615-4b0d-9976-b459480a78ed" width="100" height="100"> | <img src="https://github.com/user-attachments/assets/6d666579-7b45-4f62-b735-1f750ede06de" width="100" height="100">|<img src="" width="100" height="100"> |
+ |<img src="https://github.com/user-attachments/assets/97fdd97e-09a8-4a34-bcbd-a6f1aaeaf1c1" width="100" height="100"> |<img src="https://github.com/user-attachments/assets/7fe679d8-362c-4f9f-9f64-e5ca0ef26843" width="100" height="100"> |<img src="https://github.com/user-attachments/assets/a2c92f45-4b68-40ce-9cce-7e43e73d33f7" width="100" height="100"> | <img src="https://github.com/user-attachments/assets/68e327b0-7eaa-44f0-be45-762c9723916b" width="100" height="100">|<img src="" width="100" height="100"> |
  
+
+
 ### Tools
-| Redis         | Docker         | Swagger         |  Git        | GitHub         |   GitHubActions       |  Slack       | Grafana | EC2 |
-|-------------------|-------------------|-------------------|-------------------|-------------------|-------------------|-------------------|-------------------|-------------------|
-|<img src="https://github.com/user-attachments/assets/3e8f2836-045f-4d1a-85f1-0cab931032ea" width="100" height="100"> |<img src="https://github.com/user-attachments/assets/69bfa62f-716f-4723-956d-70c8f5de15d7" width="100" height="100"> |<img src="https://github.com/user-attachments/assets/a8dcc1e7-5534-4c2e-ae67-635ec5515cea" width="100" height="100"> |<img src="https://github.com/user-attachments/assets/88d6c4c8-39b7-4147-a9b8-cc0e88535ec4" width="100" height="100"> |<img src="https://github.com/user-attachments/assets/feb0d43f-823d-4ca1-a1dc-d0db3de63c67" width="100" height="100"> |<img src="" width="100" height="100"> |<img src="https://github.com/user-attachments/assets/89d4adf1-a52f-4c6a-8d20-725d113d0569" width="100" height="100"> |<img src="" width="100" height="100"> |<img src="" width="100" height="100"> |
-### API docs
+| Redis         | Docker         | Swagger         |   Slack       | Grafana | Prometheus |
+|-------------------|-------------------|-------------------|-------------------|-------------------|-------------------|
+|<img src="https://github.com/user-attachments/assets/3e8f2836-045f-4d1a-85f1-0cab931032ea" width="100" height="100"> |<img src="https://github.com/user-attachments/assets/69bfa62f-716f-4723-956d-70c8f5de15d7" width="100" height="100"> |<img src="https://github.com/user-attachments/assets/a8dcc1e7-5534-4c2e-ae67-635ec5515cea" width="100" height="100"> |<img src="https://github.com/user-attachments/assets/89d4adf1-a52f-4c6a-8d20-725d113d0569" width="100" height="100"> |<img src="https://github.com/user-attachments/assets/14676353-1fb9-47f8-8c28-ebf640682870" width="100" height="100"> |<img src="https://github.com/user-attachments/assets/d02db004-2a21-4f47-98bb-195fabe4e0fd" width="100" height="100"> |
+
+|  Git        | GitHub         |   GitHubActions       | EC2 |
+|-------------------|-------------------|-------------------|-------------------|
+|<img src="https://github.com/user-attachments/assets/88d6c4c8-39b7-4147-a9b8-cc0e88535ec4" width="100" height="100"> |<img src="https://github.com/user-attachments/assets/feb0d43f-823d-4ca1-a1dc-d0db3de63c67" width="100" height="100"> |<img src="https://github.com/user-attachments/assets/2ddb9b62-b74a-4114-8f45-87a562ab6f06" width="100" height="100"> |<img src="https://github.com/user-attachments/assets/52827718-a3d0-47e9-bc2d-d609d811bba2" width="100" height="100"> |
+
 
