@@ -39,41 +39,7 @@ API 명세서 ☞ [여기로](https://www.notion.so/teamsparta/API-1cb2dc3ef5148
 
 
 ## Trouble Shooting
-
-### 트러블 슈팅 1
-#### 문제: 
-
-#### 해결과정
-##### 고민했던 방안
-
-##### 결과 
-
-#### 해결방법
-
-
-### 트러블 슈팅 2
-#### 문제: 
-
-#### 해결 과정
-##### 고민했던 방안
-
-##### 결과
-
-### 트러블 슈팅 3
-#### 문제: 
-
-#### 해결 과정
-##### 고민했던 방안
-
-##### 결과
-
-### 트러블 슈팅 4
-#### 문제: 
-
-#### 해결 과정
-##### 고민했던 방안
-
-##### 결과
+[트러블 슈팅](https://github.com/homeProtector/oneul-tanda/wiki/%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85)
 
 ## Technologies & Tools
 ### Technologies
