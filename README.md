@@ -30,11 +30,12 @@
 ## 서비스 구성 및 실행
 
 
-### 각 서비스별 endpoint
+### API 명세서
 API 명세서 ☞ [여기로](https://www.notion.so/teamsparta/API-1cb2dc3ef5148015a607f0b2d76c6962)
 
 ## 테이블 명세서 및 ERD
 테이블 명세서 ☞ [여기로](https://www.notion.so/teamsparta/1cb2dc3ef51480e098cceb210a6af62e)
+![항공권 예매 서비스 (4)](https://github.com/user-attachments/assets/083d6c62-7d02-4c73-8dd6-9e89a4fc2fe1)
 
 
 ## Trouble Shooting
