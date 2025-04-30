@@ -2,7 +2,7 @@ name: Deploy to OCI via SSH
 
 on:
   workflow_run:
-    workflows: [ "CI" ]
+    workflows: [ "docker-ci" ]
     types:
       - completed
 #  push:
