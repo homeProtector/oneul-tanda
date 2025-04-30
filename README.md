@@ -28,6 +28,7 @@
 | **서서브-리더** | 오연주       |     항공 서비스 설계 및 구현           |
 
 ## 서비스 구성 및 실행
+<img width="750" alt="image (7)" src="https://github.com/user-attachments/assets/82353c1e-af2b-43e6-b50a-de94097b2303" />
 
 
 ### API 명세서
@@ -37,9 +38,29 @@ API 명세서 ☞ [여기로](https://www.notion.so/teamsparta/API-1cb2dc3ef5148
 테이블 명세서 ☞ [여기로](https://www.notion.so/teamsparta/1cb2dc3ef51480e098cceb210a6af62e)
 ![항공권 예매 서비스 (4)](https://github.com/user-attachments/assets/083d6c62-7d02-4c73-8dd6-9e89a4fc2fe1)
 
+## 주요 기능
+- 사용자 관리
+    - Redis를 사용하여 토큰 관리
+      → 사용자의 권한 상태 변경에 따라 토큰 블랙리스트, 만료 처리를 위한 토큰 버전 추가
+    - 토큰 버전 변경시 Kafka를 통해 gateway에서 토큰 만료 비동기 처리
+- 실시간 항공편 조회
+    - 외부 API 연동을 통한 실시간 항공편 조회 기능 구현
+    - 검색 날짜 기준 최저가 순으로 검색
+    - Redis cache를 통한 항공편 조회 성능 최적화
+- 대기열의 생성 및 관리
+    - 좌석 선점형 대기열 → 좌석 선택하여 예약 진행 중에 다른 사용자는 같은 좌석에 대한 예약 진행 불가
+    - Redisson을 통한 분산 락 적용으로 동시성 제어 → 좌석 수에 대한 데이터 정합성 보장
+    - Redis SortedSet을 통한 대기열 생성으로 순차적인 처리 → 먼저 선점한 사용자의 예약 순서를 보장
+- 임시 예약 및 예약 생성
+    - 대기열 진입 성공시 Kafka를 통해 예약 생성 비동기 처리
+    - Redis에 임시 예약 정보 생성 및 TTL 지정 → 기간내 탑승객 정보 입력 및 결제 완료 시 예약 확정
+- 결제
+    - 포트원 PG 대행사 연동을 통한 결제 시스템
+    - 예약 생성시 결제 요청 → 결제 승인 처리, 예약 취소시 → 결제 취소 처리
+
 
 ## Trouble Shooting
-[트러블 슈팅](https://github.com/homeProtector/oneul-tanda/wiki/%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85)
+트러블 슈팅 ☞[여기로](https://github.com/homeProtector/oneul-tanda/wiki/%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85)
 
 ## Technologies & Tools
 ### Technologies
