@@ -41,6 +41,7 @@ jobs:
 
 # 추후 분리가 필요할 수 있음
   deploy:
+    needs: build-and-push
     environment: oneul-tanda
     runs-on: ubuntu-latest
 
