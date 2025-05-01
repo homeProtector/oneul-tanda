@@ -85,11 +85,12 @@ jobs:
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.INSTANCE_IP }} "mkdir -p /home/${{ secrets.SSH_USER }}/app"
 
-      - name: Send docker-compose files and .env
+      - name: Send docker-compose files and .env and init-scripts
         run: |
           scp ./docker-compose-server.yml ${{ secrets.SSH_USER }}@${{ secrets.INSTANCE_IP }}:/home/ubuntu/app/docker-compose.yml
           scp ./.env ${{ secrets.SSH_USER }}@${{ secrets.INSTANCE_IP }}:/home/ubuntu/app/
           scp ./prometheus.yml ${{ secrets.SSH_USER }}@${{ secrets.INSTANCE_IP }}:/home/ubuntu/app/
+          scp -r ./init-scripts ${{ secrets.SSH_USER }}@${{ secrets.INSTANCE_IP }}:/home/ubuntu/app/
 
       - name: Run docker compose on server
         run: |
