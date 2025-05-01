@@ -9,6 +9,7 @@ on:
 
 jobs:
   CI:
+    environment: oneul-tanda
     runs-on: ubuntu-latest
 
     strategy:

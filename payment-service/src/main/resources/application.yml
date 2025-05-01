@@ -5,11 +5,18 @@ spring:
   application:
     name: payment-service
 
+#  datasource:
+#    url: jdbc:mysql://payments-db:3306/payments_db
+#    username: ${PAYMENT_DB_USERNAME}
+#    password: ${PAYMENT_DB_PASSWORD}
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+
   datasource:
-    url: jdbc:mysql://payments-db:3306/payments_db
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://payments-db:5432/payments_db
     username: ${PAYMENT_DB_USERNAME}
     password: ${PAYMENT_DB_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
+
 
   jpa:
     hibernate:

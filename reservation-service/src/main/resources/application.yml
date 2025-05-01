@@ -2,11 +2,17 @@ spring:
   application:
     name: reservation-service
 
+#  datasource:
+#    url: jdbc:mysql://reservation-db:3306/reservation_db
+#    username: ${RESERVATION_DB_ID}
+#    password: ${RESERVATION_DB_PASSWORD}
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+
   datasource:
-    url: jdbc:mysql://reservation-db:3306/reservation_db
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://reservation-db:5432/reservation_db
     username: ${RESERVATION_DB_ID}
     password: ${RESERVATION_DB_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     database: mysql

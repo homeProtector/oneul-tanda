@@ -2,11 +2,17 @@ spring:
   application:
     name: user-service
 
+#  datasource:
+#    url: jdbc:mysql://oneultanda-user-db:3306/user_db
+#    username: ${USER_DB_ID}
+#    password: ${USER_DB_PASSWORD}
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+
   datasource:
-    url: jdbc:mysql://oneultanda-user-db:3306/user_db
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://user-db:5432/user_db
     username: ${USER_DB_ID}
     password: ${USER_DB_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
