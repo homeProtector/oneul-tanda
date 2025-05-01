@@ -193,7 +193,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - grafana-storage:/var/lib/grafana
+      - ./grafana/data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
     environment:
       - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
@@ -209,15 +209,14 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
+      - ./prometheus/data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--query.log-file=""'
 
 volumes:
   user-postgres-data:
   reservation-postgres-data:
   flight-postgres-data:
   payments-postgres-data:
-  prometheus_data:
-  grafana-storage:
+#  prometheus_data:
+#  grafana-storage:
