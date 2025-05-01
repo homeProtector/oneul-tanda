@@ -44,9 +44,10 @@ services:
       - MYSQL_PASSWORD=${USER_DB_PASSWORD}
     ports:
       - "3309:3306"
-    command: --tmpdir=/var/tmp
+    command: --tmpdir=/var/lib/mysqltmp
     volumes:
       - user-mysql-data:/var/lib/mysql
+      - user-mysql-tmp:/var/lib/mysqltmp
 
   flight-service:
     image: duckori/flight-service:latest
@@ -102,9 +103,10 @@ services:
       - MYSQL_PASSWORD=${RESERVATION_DB_PASSWORD}
     ports:
       - "3307:3306"
-    command: --tmpdir=/var/tmp
+    command: --tmpdir=/var/lib/mysqltmp
     volumes:
       - reservation-mysql-data:/var/lib/mysql
+      - reservation-mysql-tmp:/var/lib/mysqltmp
 
   queue-service:
     image: duckori/queue-service:latest
@@ -152,9 +154,10 @@ services:
       - IMPORT_API_SECRET_KEY=${IMPORT_API_SECRET_KEY}
     ports:
       - "3308:3306"
-    command: --tmpdir=/var/tmp
+    command: --tmpdir=/var/lib/mysqltmp
     volumes:
       - payments-mysql-data:/var/lib/mysql
+      - payments-mysql-tmp:/var/lib/mysqltmp
 
 
   zookeeper:
@@ -225,5 +228,8 @@ volumes:
   reservation-mysql-data:
   flight-postgres-data:
   payments-mysql-data:
+  user-mysql-tmp:
+  reservation-mysql-tmp:
+  payment-mysql-tmp:
   prometheus_data:
   grafana-storage:
