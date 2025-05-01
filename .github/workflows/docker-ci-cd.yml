@@ -69,6 +69,8 @@ jobs:
           PAYMENT_DB_USERNAME=${{ secrets.PAYMENT_DB_USERNAME }}
           PAYMENT_DB_ROOT_PASSWORD=${{ secrets.PAYMENT_DB_ROOT_PASSWORD }}
           PAYMENT_DB_PASSWORD=${{ secrets.PAYMENT_DB_PASSWORD }}
+          IMPORT_API_KEY=${{ secrets.IMPORT_API_KEY }}
+          IMPORT_API_SECRET_KEY=${{ secrets.IMPORT_API_SECRET_KEY }}
           EOF
 
       - name: Set up SSH
