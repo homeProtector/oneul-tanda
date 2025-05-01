@@ -122,9 +122,9 @@ public class QueueService {
 //                redisTemplate.opsForValue().set("seat:" + flightId, String.valueOf(remainingSeats));
                 // 실제 항공편 서비스 좌석 차감
                 flightClient.decreaseSeats(flightId, seatCount);
-                log.info("대기열 선점에 성공 했습니다. 남은 좌석 수: {}", remainingSeats);
+                log.info("대기열 선점에 성공 했습니다. 남은 좌석 수: {}", remainingSeats - seatCount);
                 rankOps.remove(key, reserveInfo);
-                producerService.sendReserveSuccess(flightId, userId, seatCount, EventStatusEnum.SUCCESS);
+                producerService.sendReserveSuccess(flightId, userId, seatCount);
                 return QueueResponseDto.of(EventStatusEnum.SUCCESS, "대기열 선점에 성공했습니다.");
             } else {
                 log.info("남은 좌석이 없습니다. 남은 좌석 수: {}", remainingSeats);
