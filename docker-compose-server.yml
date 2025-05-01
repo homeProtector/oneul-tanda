@@ -45,6 +45,7 @@ services:
     ports:
       - "3309:3306"
     command: --tmpdir=/var/lib/mysqltmp
+    entrypoint: ["/bin/bash", "-c", "mkdir -p /var/lib/mysqltmp && chown -R mysql:mysql /var/lib/mysqltmp && exec docker-entrypoint.sh --tmpdir=/var/lib/mysqltmp"]
     volumes:
       - user-mysql-data:/var/lib/mysql
       - user-mysql-tmp:/var/lib/mysqltmp
