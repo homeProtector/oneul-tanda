@@ -43,7 +43,13 @@ public class Reservation extends BaseTimeEntity {
 
 
     /**
-     * 예약 생성
+     * 주어진 사용자와 티켓 목록으로 새로운 예약을 생성합니다.
+     *
+     * 예약 상태는 PENDING으로 설정되며, 티켓과의 연관 관계를 맺고 총 금액을 계산한 후 생성자를 등록합니다.
+     *
+     * @param userId 예약을 생성하는 사용자의 UUID
+     * @param ticketList 예약에 포함될 티켓 목록
+     * @return 생성된 Reservation 객체
      */
     public static Reservation createReservation(UUID userId, List<Ticket> ticketList) {
         Reservation reservation = Reservation.builder()

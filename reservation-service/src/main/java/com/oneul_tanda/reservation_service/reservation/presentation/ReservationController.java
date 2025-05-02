@@ -48,7 +48,14 @@ public class ReservationController {
 
 
     /**
-     * 에약 확정 V1 (RDB 기반)
+     * 예약을 확정하는 V1 API(RDB 기반) 엔드포인트입니다.
+     *
+     * 사용자 ID, 예약 ID, 요청 본문을 받아 해당 예약을 확정하고 확정 결과를 반환합니다.
+     *
+     * @param userId 예약을 확정할 사용자 ID
+     * @param reservationId 확정할 예약의 ID
+     * @param requestDto 예약 확정 요청 정보
+     * @return 예약 확정 결과 DTO를 포함한 HTTP 200 응답
      */
     @PutMapping("/{reservationId}/confirm")
     public ResponseEntity<ConfirmReservationResponseDto> confirmReservation(
@@ -61,7 +68,13 @@ public class ReservationController {
 
 
     /**
-     * 예약 확정 v2 (Redis 기반)
+     * Redis 기반의 예약 확정 v2 API 엔드포인트입니다.
+     *
+     * 사용자 ID와 예약 확정 요청 정보를 받아 예약을 확정하고, 확정 결과를 반환합니다.
+     *
+     * @param userId 예약을 확정할 사용자 ID
+     * @param requestDto 예약 확정 요청 데이터
+     * @return 예약 확정 결과가 담긴 응답 DTO
      */
     @PutMapping("/confirm")
     public ResponseEntity<ConfirmReservationResponseDto> confirmReservationV2(

@@ -18,6 +18,14 @@ public class ReservationHeldEventConsumer {
     private final ReservationService reservationService;
 
 
+    /**
+     * Kafka에서 예약 보류 이벤트를 수신하여 임시 예약을 생성합니다.
+     *
+     * 예약 보류 이벤트를 받아 해당 항공편, 사용자, 좌석 정보를 추출한 뒤 임시 예약을 생성합니다.
+     * 항공편 조회 실패 시 에러를 기록하며, 기타 예외 발생 시에도 에러를 기록합니다.
+     *
+     * @param event 예약 보류 이벤트 데이터
+     */
     @KafkaListener(
             topics = "reservation-held",
             groupId = "reservation-service",

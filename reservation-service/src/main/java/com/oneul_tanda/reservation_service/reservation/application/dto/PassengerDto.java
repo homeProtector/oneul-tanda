@@ -9,6 +9,12 @@ public record PassengerDto(
         Gender gender,
         String passportNumber
 ) {
+    /**
+     * ConfirmPassengerDtoV2 객체를 PassengerDto로 변환합니다.
+     *
+     * @param dto 변환할 ConfirmPassengerDtoV2 객체
+     * @return 변환된 PassengerDto 인스턴스
+     */
     public static PassengerDto from(ConfirmReservationRequestDtoV2.ConfirmPassengerDtoV2 dto) {
         return new PassengerDto(
                 dto.name(),

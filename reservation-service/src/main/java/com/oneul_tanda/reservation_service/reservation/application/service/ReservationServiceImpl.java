@@ -77,7 +77,12 @@ public class ReservationServiceImpl implements ReservationService {
 
 
     /**
-     * 예약 임시 생성 V1
+     * 탑승객 정보 없이 항공편에 대한 임시 예약을 생성합니다.
+     *
+     * 중복 예약 여부를 확인하고, 항공편 정보를 조회한 뒤, 탑승객 정보 없이 티켓을 생성하여 임시 예약을 저장합니다.
+     *
+     * @param command 임시 예약 생성에 필요한 사용자 및 항공편 정보
+     * @return 생성된 임시 예약의 응답 DTO
      */
     @Override
     public CreateHoldReservationResponseDto createHoldReservation(CreateHoldReservationCommand command) {
@@ -99,8 +104,13 @@ public class ReservationServiceImpl implements ReservationService {
 
 
 
-    /**
-     * 예약 임시 생성 V2
+    /****
+     * Redis를 이용하여 항공편 예약의 임시 데이터를 2분간 저장하는 V2 임시 예약 생성 메서드입니다.
+     *
+     * 중복 임시 예약을 방지하며, 좌석 수 정보를 포함한 임시 예약 데이터를 Redis에 JSON 형태로 저장합니다.
+     * 직렬화 실패 시 커스텀 예외를 발생시킵니다.
+     *
+     * @param command 임시 예약 생성에 필요한 항공편 ID, 사용자 ID, 좌석 수 정보를 포함한 명령 객체
      */
     @Override
     public void createHoldReservationV2(CreateHoldReservationCommand command) {
@@ -162,7 +172,13 @@ public class ReservationServiceImpl implements ReservationService {
 
 
     /**
-     * 예약 확정 V1 (1.탑승객 정보 입력 + 2.결제 -> 예약 확정)
+     * 예약을 확정하고 결제를 처리합니다.
+     *
+     * 예약 ID로 예약을 조회한 후, 탑승객 정보를 입력할 수 있으면 티켓에 탑승객 정보를 등록합니다. 이후 결제를 요청하며, 결제가 실패하면 예약을 결제 실패 상태로 변경하고 예외를 발생시킵니다. 결제가 성공하면 예약을 확정하고 결과 DTO를 반환합니다.
+     *
+     * @param command 예약 확정에 필요한 정보(예약 ID, 탑승객 정보 등)
+     * @return 예약 확정 결과 DTO
+     * @throws CustomException 결제 실패 시 예외가 발생합니다.
      */
     @Override
     public ConfirmReservationResponseDto confirmReservation(ConfirmReservationCommand command) {
@@ -197,7 +213,12 @@ public class ReservationServiceImpl implements ReservationService {
 
 
     /**
-     * 예약 확정 V2 (1.임시 예약 조회 및 검증 -> 2.탑승객 정보 입력 -> 3.예약 생성 -> 4.결제 -> 5.예약 확정)
+     * Redis에 저장된 임시 예약 데이터를 기반으로 예약을 확정하고 결제를 처리합니다.
+     *
+     * 임시 예약 키를 통해 Redis에서 예약 데이터를 조회 및 검증한 후, 탑승객 정보가 요청에 포함되어 있으면 Redis에 갱신합니다. 이후 항공편 정보를 조회하고, 탑승객 정보를 포함한 티켓을 생성하여 예약을 만듭니다. 결제 요청이 성공하면 예약을 확정하고, Redis의 임시 예약 데이터를 삭제합니다. 결제 실패, 탑승객 정보 누락, Redis 오류 등 상황에서는 예외가 발생합니다.
+     *
+     * @param command 예약 확정에 필요한 항공편, 사용자, 탑승객 정보가 포함된 명령 객체
+     * @return 확정된 예약 정보를 담은 DTO
      */
     @Override
     public ConfirmReservationResponseDto confirmReservationV2(ConfirmReservationCommandV2 command) {
@@ -297,7 +318,13 @@ public class ReservationServiceImpl implements ReservationService {
                 .orElseThrow(() -> CustomException.from(ReservationErrorCode.RESERVATION_NOT_FOUND));
     }
 
-    // 티켓 생성
+    /**
+     * 예약 생성 명령과 항공편 정보를 기반으로 승객별 티켓 목록을 생성합니다.
+     *
+     * @param command 예약 생성 명령, 승객 정보 포함
+     * @param flightInfo 항공편 정보
+     * @return 생성된 티켓 객체 리스트
+     */
     private List<Ticket> createTicketsWithPassengers(CreateReservationCommand command, GetFlightInfo flightInfo) {
 
         List<Ticket> ticketList = new ArrayList<>();
@@ -327,7 +354,14 @@ public class ReservationServiceImpl implements ReservationService {
         return ticketList;
     }
 
-    // userId, flightInfo, Redis passengers 기반 티켓 리스트 생성
+    /**
+     * Redis에 저장된 임시 예약 데이터(사용자 ID, 항공편 정보, 승객 정보)를 기반으로 티켓 목록을 생성합니다.
+     *
+     * @param userId 티켓 소유자 사용자 ID
+     * @param flightInfo 항공편 정보
+     * @param passengers 승객 정보 목록
+     * @return 생성된 티켓 객체 리스트
+     */
     private List<Ticket> createTicketsFromHoldData(UUID userId, GetFlightInfo flightInfo, List<PassengerDto> passengers) {
 
         List<Ticket> tickets = new ArrayList<>();
@@ -357,7 +391,13 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
 
-    // 티켓 임시 생성
+    /**
+     * 승객 정보 없이 임시 예약을 위한 티켓 목록을 생성합니다.
+     *
+     * @param command 임시 예약 생성 명령 객체
+     * @param flightInfo 항공편 정보
+     * @return 생성된 티켓 객체 리스트
+     */
     private List<Ticket> createTicketsWithoutPassengers(CreateHoldReservationCommand command, GetFlightInfo flightInfo) {
 
         List<Ticket> ticketList = new ArrayList<>();
@@ -422,7 +462,13 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
 
-    // 선점된 좌석 복구
+    /**
+     * 예약 취소 시 해당 예약의 항공편에 대해 선점된 좌석 수를 복구합니다.
+     *
+     * 좌석 복구 요청이 실패할 경우, 복원 실패 예외를 발생시킵니다.
+     *
+     * @param reservation 좌석을 복구할 예약 객체
+     */
     private void restoreReservedSeats(Reservation reservation) {
 
         Integer seatCount = reservation.getTicketList().size();
@@ -445,7 +491,14 @@ public class ReservationServiceImpl implements ReservationService {
 
 
     // === 검증 메서드 === //
-    // 예약 내에서 특정 티켓 조회 및 존재 여부 검증
+    /**
+     * 예약에서 지정된 티켓 ID에 해당하는 티켓을 조회하고, 없을 경우 예외를 발생시킵니다.
+     *
+     * @param reservation 티켓을 조회할 예약 객체
+     * @param ticketCommand 조회할 티켓의 ID 정보를 담은 명령 객체
+     * @return 조회된 티켓 객체
+     * @throws CustomException 티켓이 존재하지 않을 경우 TICKET_NOT_FOUND 예외를 발생시킵니다.
+     */
     private Ticket validateAndGetTicket(Reservation reservation, ConfirmReservationCommand.ConfirmTicketCommand ticketCommand) {
         return reservation.getTicketList().stream()
                 .filter(t -> t.getId().equals(ticketCommand.ticketId()))
@@ -462,7 +515,13 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
 
-    // 좌석 수 검증 및 좌석 차감
+    /**
+     * 예약 요청 좌석 수가 항공편의 남은 좌석 수보다 많은지 검증하고, 충분할 경우 좌석을 차감합니다.
+     *
+     * @param command 예약 생성 명령 객체로, 요청 좌석 수 정보를 포함합니다.
+     * @param flightInfo 항공편의 현재 남은 좌석 정보를 포함한 객체입니다.
+     * @throws CustomException 좌석이 부족할 경우 예외를 발생시킵니다.
+     */
     private void validateSeatAndReserve(CreateReservationCommand command, GetFlightInfo flightInfo) {
         if (flightInfo.remainingSeats() < command.seatCount()) {
             throw CustomException.from(ReservationErrorCode.FLIGHT_SEAT_NOT_ENOUGH);
@@ -471,7 +530,12 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
 
-    // 중복 임시 예약 생성 검증
+    /**
+     * Redis에 동일한 키가 존재하는지 확인하여 중복 임시 예약 생성을 방지합니다.
+     *
+     * @param key 임시 예약을 식별하는 Redis 키
+     * @throws CustomException 이미 해당 키로 임시 예약이 존재할 경우 발생
+     */
     private void validateDuplicateHoldReservation(String key) {
         if (redisTemplate.hasKey(key)) {
             throw CustomException.from(ReservationErrorCode.RESERVATION_DUPLICATE);
@@ -479,7 +543,13 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
 
-    // Redis에서 임시 예약 조회 및 검증
+    /**
+     * Redis에서 임시 예약 데이터를 조회하고 유효성을 검증합니다.
+     *
+     * @param key Redis에 저장된 임시 예약 데이터의 키
+     * @return 역직렬화된 임시 예약 데이터 객체
+     * @throws CustomException 임시 예약 데이터가 만료되었거나 역직렬화에 실패한 경우 발생
+     */
     private HoldReservationData validateAndGetHoldReservation(String key) {
 
         String value = redisTemplate.opsForValue().get(key);
