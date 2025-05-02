@@ -25,7 +25,7 @@ public class CacheConfig {
 
     @Bean
     RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory, ObjectMapper objectMapper) {
-        // 기본 직렬화기 (다른 캐시용)
+        // 기본 직렬화기
         GenericJackson2JsonRedisSerializer genericSerializer = new GenericJackson2JsonRedisSerializer(
                 objectMapper);
 
@@ -62,7 +62,7 @@ public class CacheConfig {
 
         // flightOffers 캐시 설정 (1분 TTL)
         RedisCacheConfiguration flightOffersConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(flightSerializer))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(genericSerializer))
                 .disableCachingNullValues()
                 .entryTtl(Duration.ofMinutes(1));
 

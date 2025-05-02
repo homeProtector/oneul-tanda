@@ -1,0 +1,103 @@
+name: CI CD
+
+on:
+  push:
+    branches:
+      - Ci/#91-cicd-gitaction
+      - main
+      # todo: 추후 main으로 수정할 것
+
+jobs:
+  CI:
+    environment: oneul-tanda
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service:
+          - eureka-server
+          - gateway-service
+          - user-service
+          - flight-service
+          - reservation-service
+          - queue-service
+          - payment-service
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:latest ./${{ matrix.service }}
+
+      - name: Push Docker Image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ matrix.service }}:latest
+
+# 추후 분리가 필요할 수 있음
+  CD:
+    needs: CI
+    environment: oneul-tanda
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: set up .env
+        run: |
+          cat <<EOF > .env
+          JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+          USER_DB_ROOT_PASSWORD=${{ secrets.USER_DB_ROOT_PASSWORD }}
+          USER_DB_ID=${{ secrets.USER_DB_ID }}
+          USER_DB_PASSWORD=${{ secrets.USER_DB_PASSWORD }}
+          RESERVATION_DB_ROOT_PASSWORD=${{ secrets.RESERVATION_DB_ROOT_PASSWORD }}
+          RESERVATION_DB_ID=${{ secrets.RESERVATION_DB_ID }}
+          RESERVATION_DB_PASSWORD=${{ secrets.RESERVATION_DB_PASSWORD }}
+          FLIGHT_DB_ID=${{ secrets.FLIGHT_DB_ID }}
+          FLIGHT_DB_PASSWORD=${{ secrets.FLIGHT_DB_PASSWORD }}
+          AMADEUS_CLIENT_ID=${{ secrets.AMADEUS_CLIENT_ID }}
+          AMADEUS_CLIENT_SECRET=${{ secrets.AMADEUS_CLIENT_SECRET }}
+          GF_SECURITY_ADMIN_USER=${{ secrets.GF_SECURITY_ADMIN_USER }}
+          GF_SECURITY_ADMIN_PASSWORD=${{ secrets.GF_SECURITY_ADMIN_PASSWORD }}
+          PAYMENT_DB_USERNAME=${{ secrets.PAYMENT_DB_USERNAME }}
+          PAYMENT_DB_ROOT_PASSWORD=${{ secrets.PAYMENT_DB_ROOT_PASSWORD }}
+          PAYMENT_DB_PASSWORD=${{ secrets.PAYMENT_DB_PASSWORD }}
+          IMPORT_API_KEY=${{ secrets.IMPORT_API_KEY }}
+          IMPORT_API_SECRET_KEY=${{ secrets.IMPORT_API_SECRET_KEY }}
+          EOF
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.INSTANCE_IP }} >> ~/.ssh/known_hosts
+
+      - name: Make sure remote directory exists
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.INSTANCE_IP }} "mkdir -p /home/${{ secrets.SSH_USER }}/app"
+
+      - name: Send docker-compose files and .env and init-scripts
+        run: |
+          scp ./docker-compose-server.yml ${{ secrets.SSH_USER }}@${{ secrets.INSTANCE_IP }}:/home/ubuntu/app/docker-compose.yml
+          scp ./.env ${{ secrets.SSH_USER }}@${{ secrets.INSTANCE_IP }}:/home/ubuntu/app/
+          scp ./prometheus.yml ${{ secrets.SSH_USER }}@${{ secrets.INSTANCE_IP }}:/home/ubuntu/app/
+          scp -r ./init-scripts ${{ secrets.SSH_USER }}@${{ secrets.INSTANCE_IP }}:/home/ubuntu/app/
+          scp -r ./grafana ${{ secrets.SSH_USER }}@${{ secrets.INSTANCE_IP }}:/home/ubuntu/app/
+
+      - name: Run docker compose on server
+        run: |
+          ssh -tt ${{ secrets.SSH_USER }}@${{ secrets.INSTANCE_IP }} "
+            cd /home/${{ secrets.SSH_USER }}/app &&
+            docker compose pull &&
+            docker compose down &&
+            docker compose up -d
+          "

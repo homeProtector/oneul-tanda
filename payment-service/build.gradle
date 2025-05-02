@@ -36,8 +36,10 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     // eureka
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-    // mysql
-    runtimeOnly 'com.mysql:mysql-connector-j'
+//    // mysql
+//    runtimeOnly 'com.mysql:mysql-connector-j'
+    // postsql
+    runtimeOnly 'org.postgresql:postgresql'
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
