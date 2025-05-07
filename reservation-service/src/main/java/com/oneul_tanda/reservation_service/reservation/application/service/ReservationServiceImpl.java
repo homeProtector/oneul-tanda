@@ -17,6 +17,7 @@ import com.oneul_tanda.reservation_service.reservation.application.exception.Res
 import com.oneul_tanda.reservation_service.reservation.domain.entity.Reservation;
 import com.oneul_tanda.reservation_service.reservation.domain.repository.ReservationRepository;
 import com.oneul_tanda.reservation_service.reservation.application.client.dto.response.GetFlightInfo;
+import com.oneul_tanda.reservation_service.reservation.presentation.dto.DeleteReservationResponseDto;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.response.create.CreateHoldReservationResponseDto;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.response.create.CreateReservationResponseDto;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.response.read.ReadReservationResponseDto;
@@ -289,7 +290,24 @@ public class ReservationServiceImpl implements ReservationService {
 
 
 
-    
+
+    /**
+     * 예약 삭제
+     */
+    @Override
+    public DeleteReservationResponseDto deleteReservation(UUID userId, UUID reservationId) {
+        // 예약 조회
+        Reservation reservation = getReservationOrThrow(reservationId);
+        
+        // 예약 삭제
+        reservation.markDeleted(userId);
+        
+        return DeleteReservationResponseDto.of(reservation.getId());
+    }
+
+
+
+
     // 예약 조회
     private Reservation getReservationOrThrow(UUID reservationId) {
         return reservationRepository.findById(reservationId)
