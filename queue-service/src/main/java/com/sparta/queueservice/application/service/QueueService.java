@@ -4,7 +4,6 @@ import com.sparta.queueservice.application.dto.FlightRequestDto;
 import com.sparta.queueservice.application.dto.QueueResponseDto;
 import com.sparta.queueservice.infrastructure.client.FlightResponse;
 import com.sparta.queueservice.infrastructure.kafka.ProducerService;
-import com.sparta.queueservice.infrastructure.kafka.event.EventStatusEnum;
 import com.sparta.queueservice.infrastructure.client.FlightClient;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -14,7 +13,7 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.Set;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -101,13 +100,17 @@ public class QueueService {
 //        }
 
         // 대기열에 있는 모든 유저 조회
-        Set<String> topUsers = rankOps.range(key, 0, -1);
-        if (topUsers == null || topUsers.isEmpty()) {
+        String topUser = rankOps.range("ranks:" + flightId, 0, 0)
+                .stream()
+                .findFirst()
+                .orElse(null);
+
+        if (topUser == null || topUser.isEmpty()) {
             return QueueResponseDto.of(EventStatusEnum.FAILED, "대기열에 없는 유저 입니다.");
         }
+
         // 좌석 수가 남아 있을때 대기열 선점 좌석 수가 0이면 실패 메시지를 보낸 후 대기열에서 삭제
-        for(String reserveInfo : topUsers) {
-            String[] parts =  reserveInfo.split(":");
+            String[] parts =  topUser.split(":");
             UUID userId = UUID.fromString(parts[0]);
             int seatCount = Integer.parseInt(parts[1]);
 
@@ -123,17 +126,16 @@ public class QueueService {
                 // 실제 항공편 서비스 좌석 차감
                 flightClient.decreaseSeats(flightId, seatCount);
                 log.info("대기열 선점에 성공 했습니다. 남은 좌석 수: {}", remainingSeats - seatCount);
-                rankOps.remove(key, reserveInfo);
+                rankOps.remove(key, topUser);
                 producerService.sendReserveSuccess(flightId, userId, seatCount);
                 return QueueResponseDto.of(EventStatusEnum.SUCCESS, "대기열 선점에 성공했습니다.");
             } else {
                 log.info("남은 좌석이 없습니다. 남은 좌석 수: {}", remainingSeats);
-                rankOps.remove(key, reserveInfo);
+                rankOps.remove(key, topUser);
                 deleteExistReserve(flightId, userId);
                 return QueueResponseDto.of(EventStatusEnum.FAILED, "남은 좌석이 없습니다.");
             }
-        }
-        return QueueResponseDto.of(EventStatusEnum.FAILED, "예약 신청에 실패하셨습니다.");
+//        return QueueResponseDto.of(EventStatusEnum.FAILED, "예약 신청에 실패하셨습니다.");
     }
 
     // 중복 유저가 있는지 체크
