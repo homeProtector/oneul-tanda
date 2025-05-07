@@ -3,7 +3,6 @@ package com.sparta.queueservice.web;
 import com.sparta.queueservice.application.dto.FlightRequestDto;
 import com.sparta.queueservice.application.dto.QueueResponseDto;
 import com.sparta.queueservice.application.service.QueueService;
-import com.sparta.queueservice.infrastructure.kafka.event.EventStatusEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
