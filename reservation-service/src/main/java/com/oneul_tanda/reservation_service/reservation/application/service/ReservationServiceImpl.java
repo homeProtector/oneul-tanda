@@ -341,6 +341,18 @@ public class ReservationServiceImpl implements ReservationService {
 
 
 
+    /**
+     * 예약 취소 확정
+     */
+    @Override
+    public void cancelReservationConfirm(UUID reservationId) {
+         // 예약 조회
+         Reservation reservation = getReservationOrThrow(reservationId);
+
+         reservation.cancel();
+     }
+
+
 
     /**
      * 예약 삭제

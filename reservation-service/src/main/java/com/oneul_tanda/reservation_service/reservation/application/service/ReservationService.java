@@ -36,5 +36,7 @@ public interface ReservationService {
 
     CancelReservationResponseDtoV2 cancelReservationV2(UUID reservationId);
 
+    void cancelReservationConfirm(UUID reservationId);
+
     DeleteReservationResponseDto deleteReservation(UUID userId, UUID reservationId);
 }
