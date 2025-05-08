@@ -33,7 +33,7 @@ spring:
         - id: websocket-service
           uri: lb:ws://websocket-service
           predicates:
-            - Path=/ws/chat
+            - Path=/ws/notification
           filters:
             - name: JwtWebSocketAuth
       discovery:
@@ -58,11 +58,15 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:19090/eureka/  # Eureka 서버의 URL을 지정
+#      defaultZone: http://eureka-server:19090/eureka/  # Eureka 서버의 URL을 지정
+      defaultZone: http://localhost:19090/eureka/  # Eureka 서버의 URL을 지정
 
 
 
 tokenVersion-expiration: 31 # Access token 만료 기간보다 1분 길게 만일 refresh 토큰이 추가되면 또 바뀔 예정
 
+#jwt:
+#  secret: ${JWT_SECRET_KEY}
+
 jwt:
-  secret: ${JWT_SECRET_KEY}
+  secret: 7Iqk7YyM66W07YOA7L2U65Sp7YG065+9U3ByaW5n6rCV7J2Y7Yqc7YSw7LWc7JuQ67mI7J6F64uI64ukOg==
