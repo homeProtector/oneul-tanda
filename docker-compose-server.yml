@@ -136,6 +136,19 @@ services:
       - payments-db
       - eureka-server
 
+  websocket-service:
+    image: duckori/websocket-service:latest
+    container_name: oneultada-websocket-service
+    volumes:
+      - ./websocket-service:/app/websocket-service
+    ports:
+      - "19097:19097"
+    env_file:
+      - .env
+    depends_on:
+      - kafka
+      - eureka-server
+
   payments-db:
     image: postgres:16.3
     container_name: oneultanda-payments-db

@@ -3,14 +3,15 @@ name: CI CD
 on:
   push:
     branches:
-      - Ci/#91-cicd-gitaction
       - main
-      # todo: 추후 main으로 수정할 것
+      - dev
 
 jobs:
   CI:
     environment: oneul-tanda
     runs-on: ubuntu-latest
+
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
 
     strategy:
       matrix:
@@ -22,6 +23,7 @@ jobs:
           - reservation-service
           - queue-service
           - payment-service
+          - websocket-service
 
     steps:
       - name: Checkout source
@@ -44,6 +46,7 @@ jobs:
 # 추후 분리가 필요할 수 있음
   CD:
     needs: CI
+    if: github.ref == 'refs/heads/main'
     environment: oneul-tanda
     runs-on: ubuntu-latest
 
