@@ -46,7 +46,7 @@ Content-Type: application/json
 Authorization: Bearer {{access_token}}
 
 {
-  "flightId" : "e2bf46c6-9d04-4b56-a08c-0d5d6028b113",
+  "flightId" : "5ae447b2-f6bc-466b-853a-98e3afa07bba",
   "seatCount" : 2
 }
 
