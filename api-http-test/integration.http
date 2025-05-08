@@ -32,7 +32,7 @@ Content-Type: application/json
 %}
 
 ### 항공편 조회 및 저장
-POST http://localhost:19091/api/v1/amadeus/flights/fetch-and-save?departureAirportCode=LGW&arrivalAirportCode=KWE&departureDate=2025-04-25T19:45:25&requiredSeats=2
+POST http://localhost:19091/api/v1/amadeus/flights/fetch-and-save?departureAirportCode=LGW&arrivalAirportCode=KWE&departureDate=2025-05-12T19:45:25&requiredSeats=2
 Authorization: Bearer {{access_token}}
 
 ### 알림 준비
@@ -46,7 +46,7 @@ Content-Type: application/json
 Authorization: Bearer {{access_token}}
 
 {
-  "flightId" : "66b08c46-8393-480a-a8bc-3d72dcda80dd",
+  "flightId" : "e2bf46c6-9d04-4b56-a08c-0d5d6028b113",
   "seatCount" : 2
 }
 

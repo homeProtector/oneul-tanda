@@ -34,6 +34,8 @@ spring:
           uri: lb:ws://websocket-service
           predicates:
             - Path=/ws/chat
+          filters:
+            - name: JwtWebSocketAuth
       discovery:
         locator:
           enabled: true  # 서비스 디스커버리를 통해 동적으로 라우트를 생성하도록 설정
