@@ -127,6 +127,8 @@ public class ReservationServiceImpl implements ReservationService {
             redisTemplate.opsForValue().set(key, value, Duration.ofMinutes(2));
             log.info("임시 예약 생성 완료: {}", key);
 
+            producer.sendReservationPendingEvent(flightId, userId, seatCount);
+
         } catch (JsonProcessingException e) {
             log.error("임시 예약 저장 실패: {}", e.getMessage(), e);
             // Todo 좌석 복구 or 알림 시스템에 예약 임시 생성 실패 전송
@@ -332,7 +334,7 @@ public class ReservationServiceImpl implements ReservationService {
         // 3. 이벤트 발행
         UUID flightId = reservation.getTicketList().get(0).getFlightId();
         int seatCount = reservation.getTicketList().size();
-        producer.sendReservationCanceledEvent(reservation.getId(), flightId, reservation.getUserId(), seatCount);
+        producer.sendReservationCanceledEvent(reservation.getId(), flightId, seatCount);
 
         // 4. 응답 반환
         return CancelReservationResponseDtoV2.of(reservation.getId());

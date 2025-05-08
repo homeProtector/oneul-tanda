@@ -5,13 +5,14 @@ on:
     branches:
       - main
       - dev
+      - Feat/#118-feat-notification-chat-server
 
 jobs:
   CI:
     environment: oneul-tanda
     runs-on: ubuntu-latest
 
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
+#    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev'
 
     strategy:
       matrix:
