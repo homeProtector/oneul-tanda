@@ -35,6 +35,10 @@ Content-Type: application/json
 POST http://localhost:19091/api/v1/amadeus/flights/fetch-and-save?departureAirportCode=LGW&arrivalAirportCode=KWE&departureDate=2025-04-25T19:45:25&requiredSeats=2
 Authorization: Bearer {{access_token}}
 
+### 알림 준비
+WEBSOCKET ws://localhost:19097/ws/notification
+Authorization: Bearer {{access_token}}
+
 
 ### 특가 항공권 예매 요청
 POST http://localhost:19091/api/v1/queue

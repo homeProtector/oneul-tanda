@@ -164,6 +164,21 @@ services:
     volumes:
       - payments-postgres-data:/var/lib/postgresql/data
 
+  websocket-service:
+    build:
+      context: ./websocket-service
+      dockerfile: Dockerfile
+    container_name: oneultada-websocket-service
+    volumes:
+      - ./websocket-service:/app/websocket-service
+    ports:
+      - "19097:19097"
+    env_file:
+      - .env
+    depends_on:
+      - kafka
+      - eureka-server
+
   zookeeper:
     image: wurstmeister/zookeeper:latest
     platform: linux/amd64
