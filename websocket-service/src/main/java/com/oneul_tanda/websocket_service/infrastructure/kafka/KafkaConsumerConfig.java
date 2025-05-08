@@ -1,4 +1,4 @@
-package com.oneultanda.gatewayservice.infrastructure.kafka;
+package com.oneul_tanda.websocket_service.infrastructure.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.UUIDDeserializer;
@@ -24,7 +24,7 @@ public class KafkaConsumerConfig {
     String bootstrapServers;
 
     @Bean
-    public ConsumerFactory<UUID, TokenVersionChangedEvent> consumerFactory() {
+    public ConsumerFactory<UUID, ReservationPendingEvent> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
 
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -39,15 +39,15 @@ public class KafkaConsumerConfig {
 
         // JsonDeserializer 설정
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-        props.put(JsonDeserializer.TYPE_MAPPINGS, "TokenVersionChangedEvent:com.oneultanda.gatewayservice.infrastructure.kafka.TokenVersionChangedEvent");
+        props.put(JsonDeserializer.TYPE_MAPPINGS, "TokenVersionChangedEvent:com.oneul_tanda.websocket_service.infrastructure.kafka.ReservationPendingEvent");
 
         return new DefaultKafkaConsumerFactory<>(props);
     }
 
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<UUID, TokenVersionChangedEvent> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<UUID, TokenVersionChangedEvent> factory =
+    public ConcurrentKafkaListenerContainerFactory<UUID, ReservationPendingEvent> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<UUID, ReservationPendingEvent> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
         return factory;
