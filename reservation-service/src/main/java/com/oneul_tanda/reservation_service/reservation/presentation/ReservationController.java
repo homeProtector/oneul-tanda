@@ -4,11 +4,13 @@ import com.oneul_tanda.reservation_service.reservation.application.command.Confi
 import com.oneul_tanda.reservation_service.reservation.application.command.ConfirmReservationCommandV2;
 import com.oneul_tanda.reservation_service.reservation.application.command.CreateReservationCommand;
 import com.oneul_tanda.reservation_service.reservation.application.service.ReservationService;
+import com.oneul_tanda.reservation_service.reservation.presentation.dto.DeleteReservationResponseDto;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.request.create.CreateReservationRequestDto;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.request.update.ConfirmReservationRequestDto;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.request.update.ConfirmReservationRequestDtoV2;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.response.create.CreateReservationResponseDto;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.response.update.CancelReservationResponseDto;
+import com.oneul_tanda.reservation_service.reservation.presentation.dto.response.update.CancelReservationResponseDtoV2;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.response.update.ConfirmReservationResponseDto;
 import com.oneul_tanda.reservation_service.reservation.presentation.dto.response.read.ReadReservationResponseDto;
 import jakarta.validation.Valid;
@@ -92,10 +94,33 @@ public class ReservationController {
 
 
     /**
-     * 예약 취소(예약 수정)
+     * 예약 취소
      */
     @PutMapping("/{reservationId}/cancel")
     public ResponseEntity<CancelReservationResponseDto> cancelReservation(@PathVariable UUID reservationId) {
         return ResponseEntity.ok(reservationService.cancelReservation(reservationId));
+    }
+
+
+
+    /**
+     * 예약 취소 V2
+     */
+    @PutMapping("/{reservationId}/cancelV2")
+    public ResponseEntity<CancelReservationResponseDtoV2> cancelReservationV2(@PathVariable UUID reservationId) {
+        return ResponseEntity.ok(reservationService.cancelReservationV2(reservationId));
+    }
+
+
+
+    /**
+     * 예약 삭제
+     */
+    @DeleteMapping("/{reservationId}")
+    public ResponseEntity<DeleteReservationResponseDto> deleteReservation(
+            @RequestHeader("X-User-Id") UUID userId,
+            @PathVariable UUID reservationId
+    ) {
+        return ResponseEntity.ok(reservationService.deleteReservation(userId, reservationId));
     }
 }
