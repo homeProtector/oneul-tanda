@@ -14,7 +14,7 @@ import java.util.UUID;
 public class PaymentProducerService {
     private  final KafkaTemplate<String, ReservationCanceledEvent> kafkaTemplate;
 
-    public void sendPaymentCanceled(UUID reservationId, UUID flightId, int seatCount) {
+    public void sendPaymentCanceled(UUID reservationId, UUID flightId, Integer seatCount) {
         ReservationCanceledEvent event = ReservationCanceledEvent
                 .createReservationCanceledEvent(reservationId, flightId, seatCount, "payment-canceled");
 
