@@ -38,7 +38,10 @@ public class KafkaConsumerConfig {
 
         // JsonDeserializer 설정
         props.put(JsonDeserializer.TRUSTED_PACKAGES, "*");
-        props.put(JsonDeserializer.TYPE_MAPPINGS, "ReservationHeldEvent:com.oneul_tanda.websocket_service.infrastructure.kafka.ReservationHeldEvent");
+//        props.put(JsonDeserializer.TYPE_MAPPINGS, "ReservationHeldEvent:com.oneul_tanda.websocket_service.infrastructure.kafka.ReservationHeldEvent");
+
+        props.put(JsonDeserializer.VALUE_DEFAULT_TYPE,
+                "com.oneul_tanda.websocket_service.infrastructure.kafka.ReservationHeldEvent");
 
         return new DefaultKafkaConsumerFactory<>(props);
     }
