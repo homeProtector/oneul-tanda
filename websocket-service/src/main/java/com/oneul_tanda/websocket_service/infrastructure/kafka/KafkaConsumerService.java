@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class KafkaConsumerService {
 
-    private WebSocketHandler webSocketHandler;
+    private final WebSocketHandler webSocketHandler;
 
     @KafkaListener(topics = KafkaTopics.WEBSOCKET_MESSAGE, groupId = "websocket_group")
     public void handleDeliveryStatusChanged(ReservationHeldEvent event) {
