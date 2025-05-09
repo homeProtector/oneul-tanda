@@ -14,7 +14,7 @@ public class KafkaConsumerService {
     private WebSocketHandler webSocketHandler;
 
     @KafkaListener(topics = KafkaTopics.WEBSOCKET_MESSAGE, groupId = "websocket_group")
-    public void handleDeliveryStatusChanged(ReservationPendingEvent event) {
+    public void handleDeliveryStatusChanged(ReservationHeldEvent event) {
         log.info("알림 메세지 수신: {}", event);
 
         try {
