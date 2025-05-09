@@ -20,7 +20,7 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
             Map<String, Object> attributes) {
 
         // 헤더에서 x-userid, x-username, chatRoomId 추출
-        UUID userId = UUID.fromString(request.getHeaders().getFirst("X-User-ID"));
+        String userId = request.getHeaders().getFirst("X-User-ID");
 
         if (userId != null) {
             attributes.put("userId", userId);
