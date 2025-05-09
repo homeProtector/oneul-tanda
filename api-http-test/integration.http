@@ -36,7 +36,7 @@ POST http://localhost:19091/api/v1/amadeus/flights/fetch-and-save?departureAirpo
 Authorization: Bearer {{access_token}}
 
 ### 알림 준비
-WEBSOCKET ws://localhost:19097/ws/notification
+WEBSOCKET ws://localhost:19091/ws/notification
 Authorization: Bearer {{access_token}}
 
 

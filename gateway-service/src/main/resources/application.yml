@@ -34,8 +34,8 @@ spring:
           uri: lb:ws://websocket-service
           predicates:
             - Path=/ws/notification
-          filters:
-            - name: JwtWebSocketAuth
+#          filters:
+#            - name: JwtWebSocketAuth
       discovery:
         locator:
           enabled: true  # 서비스 디스커버리를 통해 동적으로 라우트를 생성하도록 설정
@@ -58,8 +58,7 @@ spring:
 eureka:
   client:
     service-url:
-#      defaultZone: http://eureka-server:19090/eureka/  # Eureka 서버의 URL을 지정
-      defaultZone: http://localhost:19090/eureka/  # Eureka 서버의 URL을 지정
+      defaultZone: http://eureka-server:19090/eureka/  # Eureka 서버의 URL을 지정
 
 
 
