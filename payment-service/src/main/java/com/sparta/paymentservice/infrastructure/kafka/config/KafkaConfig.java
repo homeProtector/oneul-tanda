@@ -80,7 +80,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, ReservationCanceledEvent> reservationCancelledListenerFactory(
+    public ConcurrentKafkaListenerContainerFactory<String, ReservationCanceledEvent> reservationCanceledListenerFactory(
             KafkaTemplate<String, byte[]> dlqKafkaTemplate) {
 
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(dlqKafkaTemplate,
