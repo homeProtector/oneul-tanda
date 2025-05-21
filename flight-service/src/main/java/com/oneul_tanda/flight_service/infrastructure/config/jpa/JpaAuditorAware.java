@@ -1,4 +1,4 @@
-package com.oneul_tanda.flight_service.infrastructure.config;
+package com.oneul_tanda.flight_service.infrastructure.config.jpa;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Optional;

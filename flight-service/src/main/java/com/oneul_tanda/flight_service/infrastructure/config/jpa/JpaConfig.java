@@ -1,4 +1,4 @@
-package com.oneul_tanda.flight_service.infrastructure.config;
+package com.oneul_tanda.flight_service.infrastructure.config.jpa;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;

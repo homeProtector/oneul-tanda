@@ -1,4 +1,4 @@
-package com.oneul_tanda.flight_service.infrastructure.config;
+package com.oneul_tanda.flight_service.infrastructure.config.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oneul_tanda.flight_service.presentation.dtos.airline.AirlineResponse;
