@@ -60,10 +60,12 @@ public class DistributedLockAop {
                     Thread.sleep(distributedLock.retryDelay());
                 }
             } catch (InterruptedException e) {
-                log.error("[DistributedLock]: Lock interrupted");
-                throw new InterruptedException(e.getMessage());
+                log.error("[DistributedLock]: Lock interrupted", e);
+                Thread.currentThread().interrupt();
+                throw e;
             }
         }
+        log.warn("[DistributedLock]: Lock acquisition failed after {} retries with key: {}", retryCount, key);
         throw new LockFailedAfterRetryException();
     }
 }
