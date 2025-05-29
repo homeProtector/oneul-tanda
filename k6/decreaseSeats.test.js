@@ -6,7 +6,7 @@ export let options = {
     duration: '10s',
 };
 
-const token = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0ZXIiLCJ0b2tlblZlcnNpb24iOjEsImlkIjoiYjNhODkyYTctYWJiZS00NmViLTgxZjItNmVhNDIxY2U4ZDMyIiwicm9sZSI6IkFETUlOIiwiaXNzIjoib25ldWwtdGFuZGEiLCJpYXQiOjE3NDgzNjc2OTksImV4cCI6MTc0ODM2OTQ5OX0.PnqbCywAwBP8N1E3UZElBTZ6OQuInlasMP6VR0QwuRM'; // 반드시 갱신 필요
+const token = 'Bearer '; // token 입력 필요
 const flightId = '2129373a-1741-45a4-a2b0-56914adcc906';
 
 export default function () {
