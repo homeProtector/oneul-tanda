@@ -8,14 +8,15 @@ import com.oneul_tanda.flight_service.domain.entity.AirportEntity;
 import com.oneul_tanda.flight_service.domain.entity.FlightEntity;
 import com.oneul_tanda.flight_service.domain.exception.airline.AirlineNotFoundException;
 import com.oneul_tanda.flight_service.domain.exception.airport.AirportNotFoundException;
-import com.oneul_tanda.flight_service.domain.exception.common.GlobalException;
 import com.oneul_tanda.flight_service.domain.exception.common.ErrorMessage;
+import com.oneul_tanda.flight_service.domain.exception.common.GlobalException;
 import com.oneul_tanda.flight_service.domain.exception.flight.FlightDuplicatedException;
 import com.oneul_tanda.flight_service.domain.exception.flight.FlightNotFoundException;
 import com.oneul_tanda.flight_service.domain.repository.airline.AirlineRepository;
 import com.oneul_tanda.flight_service.domain.repository.airport.AirportRepository;
 import com.oneul_tanda.flight_service.domain.repository.flight.FlightRepository;
 import com.oneul_tanda.flight_service.domain.repository.flight.FlightRepositoryCustom;
+import com.oneul_tanda.flight_service.infrastructure.config.redis.lock.DistributedLock;
 import com.oneul_tanda.flight_service.presentation.dtos.flight.FlightDetailResponse;
 import com.oneul_tanda.flight_service.presentation.dtos.flight.FlightResponse;
 import com.oneul_tanda.flight_service.util.PagingUtil;
@@ -33,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class FlightService {
 
     private final FlightRepository flightRepository;
@@ -43,6 +43,7 @@ public class FlightService {
     private final FlightEventKafkaProducer flightEventKafkaProducer;
 
     @Cacheable(value = "flights", key = "#flightId")
+    @Transactional(readOnly = true)
     public FlightDetailResponse getFlight(UUID flightId) {
 
         FlightEntity flight = getFlightById(flightId);
@@ -50,6 +51,7 @@ public class FlightService {
         return FlightDetailResponse.from(flight);
     }
 
+    @Transactional(readOnly = true)
     public Page<FlightResponse> searchFlights(String departureAirport, String arrivalAirport,
                                               LocalDateTime departureDate, Integer requiredSeats,
                                               Pageable pageable, String userRole
@@ -136,7 +138,7 @@ public class FlightService {
         flight.updateDeletionInfo(userId);
     }
 
-    @Transactional
+    @DistributedLock(key = "#flightId.toString()")
     @CacheEvict(value = "flights", key = "#flightId") // 캐시 무효화
     public void decreaseSeats(UUID flightId, Integer requiredSeats) {
         FlightEntity flight = getFlightById(flightId);
@@ -144,7 +146,7 @@ public class FlightService {
         flight.decreaseSeatCount(requiredSeats);
     }
 
-    @Transactional
+    @DistributedLock(key = "#flightId.toString()")
     @CacheEvict(value = "flights", key = "#flightId") // 캐시 무효화
     public void increaseSeats(UUID flightId, Integer requiredSeats) {
         FlightEntity flight = getFlightById(flightId);
@@ -153,7 +155,7 @@ public class FlightService {
     }
 
     // 예약 취소(결제 취소)시 좌석 복구 비동기 처리
-    @Transactional
+    @DistributedLock(key = "#flightId.toString()")
     @CacheEvict(value = "flights", key = "#flightId") // 캐시 무효화
     public void increaseSeatsV2(UUID reservationId, UUID flightId, Integer requiredSeats) {
         FlightEntity flight = getFlightById(flightId);
