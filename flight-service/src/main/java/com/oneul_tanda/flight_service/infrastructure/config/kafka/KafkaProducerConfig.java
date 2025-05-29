@@ -1,4 +1,4 @@
-package com.oneul_tanda.flight_service.infrastructure.config;
+package com.oneul_tanda.flight_service.infrastructure.config.kafka;
 
 import com.oneul_tanda.flight_service.application.dtos.event.ReservationCanceledEvent;
 import java.util.HashMap;

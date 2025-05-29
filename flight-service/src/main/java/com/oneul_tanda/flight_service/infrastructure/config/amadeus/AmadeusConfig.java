@@ -1,4 +1,4 @@
-package com.oneul_tanda.flight_service.infrastructure.config;
+package com.oneul_tanda.flight_service.infrastructure.config.amadeus;
 
 import com.amadeus.Amadeus;
 import org.springframework.beans.factory.annotation.Value;
