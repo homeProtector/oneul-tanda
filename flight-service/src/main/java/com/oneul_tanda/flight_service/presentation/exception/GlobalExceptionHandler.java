@@ -1,5 +1,6 @@
 package com.oneul_tanda.flight_service.presentation.exception;
 
+import com.oneul_tanda.flight_service.domain.exception.lock.LockFailedAfterRetryException;
 import com.oneul_tanda.flight_service.domain.exception.airline.AirlineDuplicatedException;
 import com.oneul_tanda.flight_service.domain.exception.airline.AirlineNotFoundException;
 import com.oneul_tanda.flight_service.domain.exception.airport.AirportDuplicatedException;
@@ -63,6 +64,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FlightDuplicatedException.class)
     public ResponseEntity<ErrorResponse> handleFlightDuplicatedException(FlightDuplicatedException e) {
         return ErrorResponse.createResponse(HttpStatus.CONFLICT, ErrorMessage.DUPLICATED_FLIGHT);
+    }
+
+    // DistributedLock
+    @ExceptionHandler(LockFailedAfterRetryException.class)
+    public ResponseEntity<ErrorResponse> handleLockFailedAfterRetryException(
+            LockFailedAfterRetryException e) {
+        return ErrorResponse.createResponse(HttpStatus.REQUEST_TIMEOUT,
+                ErrorMessage.LOCK_FAILED_AFTER_RETRY);
     }
 
     // Common

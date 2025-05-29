@@ -18,6 +18,9 @@ public enum ErrorMessage {
     FLIGHT_NOT_FOUND("FLIGHT_NOT_FOUND", "해당 항공편을 찾을 수 없습니다."),
     DUPLICATED_FLIGHT("DUPLICATED_FLIGHT", "중복된 항공편입니다."),
 
+    // DistributedLock
+    LOCK_FAILED_AFTER_RETRY("LOCK_FAILED_AFTER_RETRY", "[DistributedLock]: Lock failed after retry"),
+
     // Common
     ACCESS_DENIED("ACCESS_DENIED", "접근 권한이 없습니다."),
     INVALID_REQUEST("INVALID_REQUEST", "잘못된 요청입니다."),
